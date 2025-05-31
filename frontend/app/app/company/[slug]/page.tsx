@@ -85,7 +85,8 @@ export default function CompanyPage({
     functionName: "getOrganization",
     args: [slug],
   });
-
+  console.log("slug");
+  console.log(slug);
   const { data: reviewsData } = useReadContract({
     abi,
     address: config[chainId].address,
@@ -93,6 +94,20 @@ export default function CompanyPage({
     args: [slug],
   });
 
+  const {data: firstReviewWholeApp} = useReadContract({
+    abi,
+    address: config[chainId].address,
+    functionName: "reviews",
+    args: [0n],
+  });
+
+  console.log("firstReviewWholeApp");
+  console.log(firstReviewWholeApp);
+
+  console.log("reviewsData");
+  console.log(reviewsData);
+  console.log("companyData");
+  console.log(companyData);
   if (!companyData || !reviewsData) {
     return <div>Loading...</div>;
   }
@@ -163,6 +178,8 @@ export default function CompanyPage({
     return acc;
   }, {} as Record<number, number>);
 
+
+  console.log()
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
