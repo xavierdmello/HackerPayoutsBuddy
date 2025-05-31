@@ -53,9 +53,6 @@ const existingHackathons = [
   "DubHacks 2024",
 ];
 
-// Helper function to normalize strings for comparison
-const normalizeString = (str: string) => str.toLowerCase().trim();
-
 export function SubmitReportModal({
   trigger,
   initialCompanyName,

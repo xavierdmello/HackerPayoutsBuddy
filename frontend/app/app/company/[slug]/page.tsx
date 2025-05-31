@@ -71,9 +71,6 @@ const formatDate = (timestamp: bigint) => {
   });
 };
 
-// Helper function to normalize strings for comparison
-const normalizeString = (str: string) => str.toLowerCase().trim();
-
 export default function CompanyPage({
   params,
 }: {
@@ -82,9 +79,6 @@ export default function CompanyPage({
   const { slug } = use(params);
   const chainId = useChainId();
   const { address } = useAccount();
-
-  // Normalize the slug for comparison
-  const normalizedSlug = normalizeString(slug);
 
   const { data: companyData } = useReadContract({
     abi,
@@ -97,9 +91,8 @@ export default function CompanyPage({
     abi,
     address: config[chainId].address,
     functionName: "getAllReviewsFromSponsor",
-    args: [company_name || "" ],
+    args: [company_name || ""],
   });
-
 
   const { data: firstReviewWholeApp } = useReadContract({
     abi,

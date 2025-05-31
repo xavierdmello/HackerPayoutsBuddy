@@ -57,10 +57,10 @@ contract PayMePrettyPlease {
         Organization storage org = organizations[_organization];
         if (org.totalReviews == 0) {
             // New organization, add to names array
-            // Check if organization already exists in array (case-insensitive)
+            // Check if organization already exists in array (case-sensitive)
             bool exists = false;
             for (uint i = 0; i < organizationNames.length; i++) {
-                if (compareStrings(organizationNames[i], _organization)) {
+                if (keccak256(bytes(organizationNames[i])) == keccak256(bytes(_organization))) {
                     exists = true;
                     break;
                 }
@@ -134,16 +134,8 @@ contract PayMePrettyPlease {
         uint256 pendingPayouts,
         uint256 paidOutReviews
     ) {
-        // Find the exact organization name from the array (case-insensitive)
-        string memory exactName = _organization;
-        for (uint i = 0; i < organizationNames.length; i++) {
-            if (compareStrings(organizationNames[i], _organization)) {
-                exactName = organizationNames[i];
-                break;
-            }
-        }
-        
-        Organization storage org = organizations[exactName];
+        // Use exact organization name (case-sensitive)
+        Organization storage org = organizations[_organization];
         return (
             org.name,
             org.paidOutReviews > 0 ? org.totalPayoutTime / org.paidOutReviews : 0,
@@ -155,37 +147,8 @@ contract PayMePrettyPlease {
         );
     }
 
-    // Helper function for case-insensitive string comparison
-    function compareStrings(string memory a, string memory b) internal pure returns (bool) {
-        bytes memory aBytes = bytes(a);
-        bytes memory bBytes = bytes(b);
-        
-        if (aBytes.length != bBytes.length) {
-            return false;
-        }
-        
-        for (uint i = 0; i < aBytes.length; i++) {
-            // Convert to lowercase for comparison
-            bytes1 aChar = aBytes[i];
-            bytes1 bChar = bBytes[i];
-            
-            // Convert uppercase to lowercase
-            if (aChar >= 0x41 && aChar <= 0x5A) { // A-Z
-                aChar = bytes1(uint8(aChar) + 32);
-            }
-            if (bChar >= 0x41 && bChar <= 0x5A) { // A-Z
-                bChar = bytes1(uint8(bChar) + 32);
-            }
-            
-            if (aChar != bChar) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     function getAllReviewsFromSponsor(string memory _organization) public view returns (Review[] memory) {
-        // First count how many reviews match
+        // First count how many reviews match (case-sensitive)
         uint256 matchCount = 0;
         for (uint256 i = 0; i < reviewCount; i++) {
             if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
@@ -197,7 +160,7 @@ contract PayMePrettyPlease {
         Review[] memory sponsorReviews = new Review[](matchCount);
         uint256 index = 0;
 
-        // Fill the array with matching reviews
+        // Fill the array with matching reviews (case-sensitive)
         for (uint256 i = 0; i < reviewCount; i++) {
             if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
                 sponsorReviews[index] = reviews[i];

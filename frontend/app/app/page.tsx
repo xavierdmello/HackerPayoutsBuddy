@@ -168,9 +168,10 @@ export default function AppPage() {
                     filteredCompanies.map((company, index) => (
                       <Link
                         key={index}
-                        href={`/app/company/${company.name
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")}`}
+                        href={`/app/company/${company.name.replace(
+                          /\s+/g,
+                          "-"
+                        )}`}
                         className="block hover:bg-gray-50 transition-colors"
                       >
                         <div className="p-4">
