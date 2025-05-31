@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/header";
 import Link from "next/link";
+import { SubmitReportButton } from "@/components/submit-report-button";
 
 const companies = [
   {
@@ -116,10 +117,7 @@ export default function AppPage() {
                       className="pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Submit Report
-                  </Button>
+                  <SubmitReportButton />
                 </div>
               </CardContent>
             </Card>
