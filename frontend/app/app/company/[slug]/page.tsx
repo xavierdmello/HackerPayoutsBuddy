@@ -92,13 +92,14 @@ export default function CompanyPage({
     functionName: "getOrganization",
     args: [slug],
   });
-
+  const company_name = companyData?.[0];
   const { data: reviewsData } = useReadContract({
     abi,
     address: config[chainId].address,
     functionName: "getAllReviewsFromSponsor",
-    args: [slug],
+    args: [company_name || "" ],
   });
+
 
   const { data: firstReviewWholeApp } = useReadContract({
     abi,
