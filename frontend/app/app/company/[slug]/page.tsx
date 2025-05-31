@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useChainId, useReadContract } from "wagmi";
 import config from "@/app/config";
 import { abi } from "@/app/abi";
+import { use } from "react";
 
 // Helper function to format timestamp to relative time
 const formatRelativeTime = (timestamp: bigint) => {
@@ -39,13 +40,18 @@ const calculateAvgPayoutTime = (
   return `${Math.round(avgDays)} days`;
 };
 
-export default function CompanyPage({ params }: { params: { slug: string } }) {
+export default function CompanyPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = use(params);
   const chainId = useChainId();
   const { data: companyData } = useReadContract({
     abi,
     address: config[chainId].address,
     functionName: "getOrganization",
-    args: [params.slug],
+    args: [slug],
   });
 
   if (!companyData) {
