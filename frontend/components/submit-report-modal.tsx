@@ -214,14 +214,40 @@ export function SubmitReportModal({
                     key={star}
                     type="button"
                     onClick={() => setRating(star)}
-                    className="p-1"
+                    className="p-1 group"
+                    onMouseEnter={() => {
+                      const stars = document.querySelectorAll(".star-rating");
+                      stars.forEach((s, i) => {
+                        if (i < star) {
+                          s.classList.add("fill-yellow-400", "text-yellow-400");
+                        } else {
+                          s.classList.remove(
+                            "fill-yellow-400",
+                            "text-yellow-400"
+                          );
+                        }
+                      });
+                    }}
+                    onMouseLeave={() => {
+                      const stars = document.querySelectorAll(".star-rating");
+                      stars.forEach((s, i) => {
+                        if (i < rating) {
+                          s.classList.add("fill-yellow-400", "text-yellow-400");
+                        } else {
+                          s.classList.remove(
+                            "fill-yellow-400",
+                            "text-yellow-400"
+                          );
+                        }
+                      });
+                    }}
                   >
                     <Star
-                      className={`w-6 h-6 ${
+                      className={`w-6 h-6 star-rating ${
                         star <= rating
                           ? "fill-yellow-400 text-yellow-400"
                           : "text-gray-300"
-                      } hover:text-yellow-400 transition-colors`}
+                      } transition-colors`}
                     />
                   </button>
                 ))}
