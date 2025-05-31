@@ -136,12 +136,40 @@ contract PayMePrettyPlease {
         );
     }
 
+    // Helper function for case-insensitive string comparison
+    function compareStrings(string memory a, string memory b) internal pure returns (bool) {
+        bytes memory aBytes = bytes(a);
+        bytes memory bBytes = bytes(b);
+        
+        if (aBytes.length != bBytes.length) {
+            return false;
+        }
+        
+        for (uint i = 0; i < aBytes.length; i++) {
+            // Convert to lowercase for comparison
+            bytes1 aChar = aBytes[i];
+            bytes1 bChar = bBytes[i];
+            
+            // Convert uppercase to lowercase
+            if (aChar >= 0x41 && aChar <= 0x5A) { // A-Z
+                aChar = bytes1(uint8(aChar) + 32);
+            }
+            if (bChar >= 0x41 && bChar <= 0x5A) { // A-Z
+                bChar = bytes1(uint8(bChar) + 32);
+            }
+            
+            if (aChar != bChar) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     function getAllReviewsFromSponsor(string memory _organization) public view returns (Review[] memory) {
         // First count how many reviews match
         uint256 matchCount = 0;
         for (uint256 i = 0; i < reviewCount; i++) {
-            if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
+            if (compareStrings(reviews[i].organization, _organization)) {
                 matchCount++;
             }
         }
@@ -152,7 +180,7 @@ contract PayMePrettyPlease {
 
         // Fill the array with matching reviews
         for (uint256 i = 0; i < reviewCount; i++) {
-            if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
+            if (compareStrings(reviews[i].organization, _organization)) {
                 sponsorReviews[index] = reviews[i];
                 index++;
             }

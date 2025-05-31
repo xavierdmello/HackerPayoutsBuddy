@@ -71,6 +71,9 @@ const formatDate = (timestamp: bigint) => {
   });
 };
 
+// Helper function to normalize strings for comparison
+const normalizeString = (str: string) => str.toLowerCase().trim();
+
 export default function CompanyPage({
   params,
 }: {
@@ -79,14 +82,17 @@ export default function CompanyPage({
   const { slug } = use(params);
   const chainId = useChainId();
   const { address } = useAccount();
+
+  // Normalize the slug for comparison
+  const normalizedSlug = normalizeString(slug);
+
   const { data: companyData } = useReadContract({
     abi,
     address: config[chainId].address,
     functionName: "getOrganization",
     args: [slug],
   });
-  console.log("slug");
-  console.log(slug);
+
   const { data: reviewsData } = useReadContract({
     abi,
     address: config[chainId].address,
@@ -94,7 +100,7 @@ export default function CompanyPage({
     args: [slug],
   });
 
-  const {data: firstReviewWholeApp} = useReadContract({
+  const { data: firstReviewWholeApp } = useReadContract({
     abi,
     address: config[chainId].address,
     functionName: "reviews",
@@ -178,8 +184,7 @@ export default function CompanyPage({
     return acc;
   }, {} as Record<number, number>);
 
-
-  console.log()
+  console.log();
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

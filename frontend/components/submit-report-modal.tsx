@@ -53,6 +53,9 @@ const existingHackathons = [
   "DubHacks 2024",
 ];
 
+// Helper function to normalize strings for comparison
+const normalizeString = (str: string) => str.toLowerCase().trim();
+
 export function SubmitReportModal({
   trigger,
   initialCompanyName,
@@ -80,8 +83,9 @@ export function SubmitReportModal({
   const handleOrgChange = (value: string) => {
     setOrganization(value);
     if (value.length > 0) {
+      const normalizedValue = normalizeString(value);
       const filtered = existingOrganizations.filter((org) =>
-        org.toLowerCase().includes(value.toLowerCase())
+        normalizeString(org).includes(normalizedValue)
       );
       setOrgSuggestions(filtered);
       setShowOrgSuggestions(true);
@@ -93,8 +97,9 @@ export function SubmitReportModal({
   const handleHackathonChange = (value: string) => {
     setHackathon(value);
     if (value.length > 0) {
+      const normalizedValue = normalizeString(value);
       const filtered = existingHackathons.filter((hack) =>
-        hack.toLowerCase().includes(value.toLowerCase())
+        normalizeString(hack).includes(normalizedValue)
       );
       setHackathonSuggestions(filtered);
       setShowHackathonSuggestions(true);
