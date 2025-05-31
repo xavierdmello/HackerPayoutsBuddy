@@ -218,7 +218,11 @@ export default function CompanyPage({
             </Card>
 
             {/* Reviews */}
-            <Reviews reviews={reviews} title="Reviews" showEvidence={true} />
+            <Reviews
+              reviews={reviews}
+              title="Anonymous Reviews"
+              showEvidence={true}
+            />
           </div>
 
           {/* Sidebar */}

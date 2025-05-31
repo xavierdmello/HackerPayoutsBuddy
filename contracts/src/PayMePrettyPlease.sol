@@ -156,22 +156,21 @@ contract PayMePrettyPlease {
     }
 
     function getAllReviewsFromSponsor(string memory _organization) public view returns (Review[] memory) {
-        uint256 count = 0;
-        for (uint256 i = 0; i < reviewCount; i++) {
-            if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
-                count++;
-            }
-        }
-
-        emit DebugOrganizationSearch(_organization, count);
-
-        Review[] memory sponsorReviews = new Review[](count);
+        // Create array with maximum possible size
+        Review[] memory sponsorReviews = new Review[](reviewCount);
         uint256 index = 0;
+
+        // Single loop to find and add matching reviews
         for (uint256 i = 0; i < reviewCount; i++) {
             if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
                 sponsorReviews[index] = reviews[i];
                 index++;
             }
+        }
+
+        // Resize array to actual number of matches
+        assembly {
+            mstore(sponsorReviews, index)
         }
         
         return sponsorReviews;

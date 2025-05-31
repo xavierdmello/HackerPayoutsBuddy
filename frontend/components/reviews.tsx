@@ -34,7 +34,7 @@ interface ReviewsProps {
 
 export function Reviews({
   reviews,
-  title = "Reviews",
+  title = "Anonymous Reviews",
   showEvidence = false,
 }: ReviewsProps) {
   return (
@@ -49,15 +49,37 @@ export function Reviews({
         {reviews.map((review) => (
           <div
             key={review.id}
-            className="border-b border-gray-100 last:border-0 pb-4 last:pb-0"
+            className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow"
           >
+            <div className="text-xs text-gray-500 mb-1 flex items-center justify-between">
+              <span>{review.eventName}</span>
+              {review.time && (
+                <div className="flex items-center space-x-1">
+                  {review.timeColorClass &&
+                    (review.timeColorClass.includes("blue") ? (
+                      <Clock className="w-4 h-4 text-blue-600" />
+                    ) : review.timeColorClass.includes("amber") ? (
+                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    ) : review.timeColorClass.includes("red") ? (
+                      <AlertCircle className="w-4 h-4 text-red-600" />
+                    ) : null)}
+                  <div
+                    className={`text-sm font-bold ${
+                      review.timeColorClass || "text-gray-500"
+                    }`}
+                  >
+                    {review.time}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className={`w-4 h-4 ${
+                      className={`w-6 h-6 ${
                         star <= review.rating
                           ? review.rating >= 4
                             ? "fill-green-500 text-green-500"
@@ -81,58 +103,32 @@ export function Reviews({
                   </div>
                 )}
               </div>
-              <div className="text-right">
-                {review.time && (
-                  <div className="flex items-center justify-end space-x-1">
-                    {review.timeColorClass &&
-                      (review.timeColorClass.includes("blue") ? (
-                        <Clock className="w-4 h-4 text-blue-600" />
-                      ) : review.timeColorClass.includes("amber") ? (
-                        <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      ) : review.timeColorClass.includes("red") ? (
-                        <AlertCircle className="w-4 h-4 text-red-600" />
-                      ) : null)}
-                    <div
-                      className={`text-sm font-bold ${
-                        review.timeColorClass || "text-gray-500"
-                      }`}
-                    >
-                      {review.time}
-                    </div>
-                  </div>
-                )}
-                {review.hackathonEndDate && (
-                  <div className="text-xs text-gray-500">
-                    Hackathon End Date: {review.hackathonEndDate}
-                  </div>
-                )}
-              </div>
+              {review.hackathonEndDate && (
+                <div className="text-xs text-gray-500">
+                  Hackathon End Date: {review.hackathonEndDate}
+                </div>
+              )}
             </div>
-            <div className="mb-2">
-              <div className="text-sm font-medium text-gray-900 mb-1">
-                {review.eventName}
-              </div>
-              <div className="text-sm font-semibold text-gray-900 mb-1">
+            <div className="mt-4 mb-2">
+              <div className="text-base font-semibold text-gray-900 mb-1">
                 {review.title}
               </div>
               <p className="text-sm text-gray-600">{review.comment}</p>
             </div>
-            {showEvidence && review.evidence && (
+            {showEvidence && (
               <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-xs text-gray-600 font-medium mb-1">
-                  Evidence:
-                </p>
-                <p className="text-xs text-gray-600">{review.evidence}</p>
+                {review.hasPhoto ? (
+                  <>
+                    <p className="text-xs text-gray-600 font-medium mb-1">
+                      Images:
+                    </p>
+                    <p className="text-xs text-gray-600">{review.evidence}</p>
+                  </>
+                ) : (
+                  <p className="text-xs text-gray-600">No images provided</p>
+                )}
               </div>
             )}
-            <div className="text-xs text-gray-400 flex items-center space-x-2">
-              <span>
-                {review.anonymous ? "Anonymous User" : "Verified User"}
-              </span>
-              {review.verified && (
-                <CheckCircle className="w-3 h-3 text-blue-500" />
-              )}
-            </div>
           </div>
         ))}
       </CardContent>
