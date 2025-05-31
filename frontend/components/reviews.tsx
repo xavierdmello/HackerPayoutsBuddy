@@ -15,7 +15,6 @@ import config from "../app/config";
 
 interface Review {
   id: string;
-  globalIndex: number;
   rating: number;
   title: string;
   comment: string;
@@ -47,12 +46,12 @@ export function Reviews({
 }: ReviewsProps) {
   const { writeContract } = useWriteContract();
 
-  const handleConfirmPayout = (review: Review) => {
+  const handleConfirmPayout = (reviewId: string) => {
     writeContract({
       abi,
       address: config[296].address as `0x${string}`,
       functionName: "markPrizePaidOut",
-      args: [BigInt(review.globalIndex)],
+      args: [BigInt(reviewId)],
     });
   };
 
@@ -151,7 +150,7 @@ export function Reviews({
             {isUserReviews && !review.prizePaidOut && (
               <div className="mt-4 flex justify-end">
                 <Button
-                  onClick={() => handleConfirmPayout(review)}
+                  onClick={() => handleConfirmPayout(review.id)}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   Confirm Payout Received

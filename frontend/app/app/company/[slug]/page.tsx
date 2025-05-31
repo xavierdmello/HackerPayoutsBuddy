@@ -16,6 +16,24 @@ import config from "@/app/config";
 import { abi } from "@/app/abi";
 import { use } from "react";
 
+interface Review {
+  id: string;
+  rating: number;
+  title: string;
+  comment: string;
+  eventName: string;
+  evidence?: string;
+  hasPhoto?: boolean;
+  time?: string;
+  timeColorClass?: string;
+  anonymous: boolean;
+  verified?: boolean;
+  prizeAmount?: number;
+  prizePaidOut?: boolean;
+  hackathonEndDate?: string;
+  reviewer?: string;
+}
+
 // Helper function to format timestamp to relative time
 const formatRelativeTime = (timestamp: bigint) => {
   const now = BigInt(Math.floor(Date.now() / 1000));
@@ -123,14 +141,13 @@ export default function CompanyPage({
   ] = companyData;
 
   // Transform reviews data into the format our UI expects
-  const reviews = reviewsData.map((review: any, index: number) => {
+  const reviews = reviewsData.map((review: any) => {
     const pendingTime = !review.prizePaidOut
       ? formatPendingTime(review.hackathonEndDate)
       : null;
 
     return {
-      id: `${review.organization}-${index}`,
-      globalIndex: index,
+      id: review.reviewId.toString(),
       rating: Number(review.rating),
       title: review.title,
       comment: review.comment,

@@ -24,6 +24,7 @@ contract PayMePrettyPlease {
         uint256 hackathonEndDate;
         uint256 payoutDate;
         address reviewer;
+        uint256 reviewId;
     }
 
     // State variables
@@ -92,7 +93,8 @@ contract PayMePrettyPlease {
             prizePaidOut: _isAlreadyPaidOut,
             hackathonEndDate: _hackathonEndDate,
             payoutDate: _isAlreadyPaidOut ? _payoutDate : 0,
-            reviewer: msg.sender
+            reviewer: msg.sender,
+            reviewId: reviewId
         });
 
         emit ReviewSubmitted(reviewId, msg.sender, _organization, _eventName);
@@ -163,7 +165,9 @@ contract PayMePrettyPlease {
         // Fill the array with matching reviews (case-sensitive)
         for (uint256 i = 0; i < reviewCount; i++) {
             if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
-                sponsorReviews[index] = reviews[i];
+                Review memory review = reviews[i];
+                review.reviewId = i;
+                sponsorReviews[index] = review;
                 index++;
             }
         }
