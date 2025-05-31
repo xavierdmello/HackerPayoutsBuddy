@@ -47,11 +47,12 @@ export function Reviews({
   const { writeContract } = useWriteContract();
 
   const handleConfirmPayout = (reviewId: string) => {
+    console.log("Review ID in handleConfirmPayout:", reviewId, typeof reviewId);
     writeContract({
       abi,
       address: config[296].address as `0x${string}`,
       functionName: "markPrizePaidOut",
-      args: [BigInt(reviewId)],
+      args: [BigInt(0)],
     });
   };
 
@@ -67,6 +68,14 @@ export function Reviews({
         {reviews.map((review) => (
           <div
             key={review.id}
+            onClick={() =>
+              console.log(
+                "Review ID in render:",
+                review.id,
+                "Full review object:",
+                review
+              )
+            }
             className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="text-xs text-gray-500 mb-1 flex items-center justify-between">

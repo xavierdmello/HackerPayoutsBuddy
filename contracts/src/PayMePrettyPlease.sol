@@ -102,23 +102,23 @@ contract PayMePrettyPlease {
 
     function markPrizePaidOut(uint256 _reviewId) public {
         require(_reviewId < reviewCount, "Review does not exist");
-        Review storage review = reviews[_reviewId];
-        require(!review.prizePaidOut, "Prize already paid out");
+
+        require(!reviews[_reviewId].prizePaidOut, "Prize already paid out");
         
         uint256 currentTimestamp = block.timestamp;
-        uint256 payoutTime = currentTimestamp - review.hackathonEndDate;
+        uint256 payoutTime = currentTimestamp - reviews[_reviewId].hackathonEndDate;
         
         // Update organization stats
-        Organization storage org = organizations[review.organization];
+        Organization storage org = organizations[reviews[_reviewId].organization];
         org.totalPayoutTime += payoutTime;
         org.pendingPayouts--;
         org.paidOutReviews++;
         
         // Update review
-        review.prizePaidOut = true;
-        review.payoutDate = currentTimestamp;
+        reviews[_reviewId].prizePaidOut = true;
+        reviews[_reviewId].payoutDate = currentTimestamp;
 
-        emit PrizePaidOut(_reviewId, review.organization, payoutTime);
+        emit PrizePaidOut(_reviewId, reviews[_reviewId].organization, payoutTime);
     }
 
     // View functions
