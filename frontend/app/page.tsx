@@ -1,9 +1,16 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, Shield, Users, Clock, DollarSign, Star } from "lucide-react"
-import { Header } from "@/components/header"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertTriangle,
+  Shield,
+  Users,
+  Clock,
+  DollarSign,
+  Star,
+} from "lucide-react";
+import { Header } from "@/components/header";
+import Link from "next/link";
 
 export default function HackerPayoutsLanding() {
   return (
@@ -25,12 +32,13 @@ export default function HackerPayoutsLanding() {
               </h1>
 
               <p className="text-xl text-gray-600 leading-relaxed">
-                We're the most trusted place for hackers to report, track, and verify hackathon prize payouts.
+                We're the most trusted place for hackers to report, track, and
+                verify hackathon prize payouts.
               </p>
             </div>
 
-            <Link href="/app">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full px-8 py-3 text-lg">
+            <Link href="/app" className="mt-8 block">
+              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-full px-8 py-3 text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md animate-pulse-subtle">
                 Submit Your First Report
               </Button>
             </Link>
@@ -45,20 +53,31 @@ export default function HackerPayoutsLanding() {
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">Recent Reports</h3>
-                    <Badge className="bg-red-100 text-red-600 border-red-200">Live</Badge>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Recent Reports
+                    </h3>
+                    <Badge className="bg-red-100 text-red-600 border-red-200">
+                      Live
+                    </Badge>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div>
-                        <div className="font-medium text-gray-900">TreeHacks 2024</div>
-                        <div className="text-sm text-gray-500">8 months payout delay</div>
+                        <div className="font-medium text-gray-900">
+                          TreeHacks 2024
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          8 months payout delay
+                        </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="flex">
                           {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className="w-4 h-4 fill-red-500 text-red-500" />
+                            <Star
+                              key={star}
+                              className="w-4 h-4 fill-red-500 text-red-500"
+                            />
                           ))}
                         </div>
                         <span className="text-red-600 font-semibold">1.2</span>
@@ -67,16 +86,26 @@ export default function HackerPayoutsLanding() {
 
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div>
-                        <div className="font-medium text-gray-900">ETHDenver 2024</div>
-                        <div className="text-sm text-gray-500">Wrong recipient, 3mo delay</div>
+                        <div className="font-medium text-gray-900">
+                          ETHDenver 2024
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Wrong recipient, 3mo delay
+                        </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="flex">
                           {[1, 2].map((star) => (
-                            <Star key={star} className="w-4 h-4 fill-red-500 text-red-500" />
+                            <Star
+                              key={star}
+                              className="w-4 h-4 fill-red-500 text-red-500"
+                            />
                           ))}
                           {[3, 4, 5].map((star) => (
-                            <Star key={star} className="w-4 h-4 text-gray-300" />
+                            <Star
+                              key={star}
+                              className="w-4 h-4 text-gray-300"
+                            />
                           ))}
                         </div>
                         <span className="text-red-600 font-semibold">2.1</span>
@@ -85,16 +114,25 @@ export default function HackerPayoutsLanding() {
 
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div>
-                        <div className="font-medium text-gray-900">ETHGlobal NYC</div>
-                        <div className="text-sm text-gray-500">Paid on time, transparent</div>
+                        <div className="font-medium text-gray-900">
+                          ETHGlobal NYC
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Paid on time, transparent
+                        </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="flex">
                           {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className="w-4 h-4 fill-green-500 text-green-500" />
+                            <Star
+                              key={star}
+                              className="w-4 h-4 fill-green-500 text-green-500"
+                            />
                           ))}
                         </div>
-                        <span className="text-green-600 font-semibold">4.8</span>
+                        <span className="text-green-600 font-semibold">
+                          4.8
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -147,10 +185,12 @@ export default function HackerPayoutsLanding() {
       {/* Features Section */}
       <section className="container mx-auto px-6 py-16 md:py-24">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Bringing Transparency to Hackathons</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Bringing Transparency to Hackathons
+          </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            No more broken promises, delayed payouts, or embezzled funds. Public accountability creates better
-            hackathons for everyone.
+            No more broken promises, delayed payouts, or embezzled funds. Public
+            accountability creates better hackathons for everyone.
           </p>
         </div>
 
@@ -158,10 +198,12 @@ export default function HackerPayoutsLanding() {
           <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
             <CardContent className="p-8">
               <Shield className="w-12 h-12 text-blue-600 mb-6" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Anonymous Reporting</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Anonymous Reporting
+              </h3>
               <p className="text-gray-600">
-                Report issues without fear of retaliation. Your identity stays protected while your voice creates
-                change.
+                Report issues without fear of retaliation. Your identity stays
+                protected while your voice creates change.
               </p>
             </CardContent>
           </Card>
@@ -169,9 +211,12 @@ export default function HackerPayoutsLanding() {
           <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
             <CardContent className="p-8">
               <Star className="w-12 h-12 text-blue-600 mb-6" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Public Reviews</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Public Reviews
+              </h3>
               <p className="text-gray-600">
-                Rate hackathons on payout speed, transparency, and organization. Help others make informed decisions.
+                Rate hackathons on payout speed, transparency, and organization.
+                Help others make informed decisions.
               </p>
             </CardContent>
           </Card>
@@ -179,9 +224,12 @@ export default function HackerPayoutsLanding() {
           <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
             <CardContent className="p-8">
               <Clock className="w-12 h-12 text-blue-600 mb-6" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Payout Tracking</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Payout Tracking
+              </h3>
               <p className="text-gray-600">
-                Track prize distribution timelines and hold organizers accountable to their promises and deadlines.
+                Track prize distribution timelines and hold organizers
+                accountable to their promises and deadlines.
               </p>
             </CardContent>
           </Card>
@@ -192,13 +240,16 @@ export default function HackerPayoutsLanding() {
       <section className="bg-gray-900 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Start your accountability journey today</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Start your accountability journey today
+            </h2>
             <p className="text-xl text-gray-300 mb-8">
-              Join thousands of hackers demanding transparency and accountability. Together, we can make hackathons
-              better for everyone.
+              Join thousands of hackers demanding transparency and
+              accountability. Together, we can make hackathons better for
+              everyone.
             </p>
             <Link href="/app">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full px-8 py-3">
+              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-full px-8 py-3 text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md animate-pulse-subtle">
                 Submit Your First Report
               </Button>
             </Link>
@@ -215,5 +266,5 @@ export default function HackerPayoutsLanding() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
