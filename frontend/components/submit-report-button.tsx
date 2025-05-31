@@ -24,7 +24,7 @@ export function SubmitReportButton({
           className={`bg-blue-600 hover:bg-blue-700 text-white rounded-lg ${className}`}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Submit Report
+          Submit Review
         </Button>
       }
       initialCompanyName={companyName}

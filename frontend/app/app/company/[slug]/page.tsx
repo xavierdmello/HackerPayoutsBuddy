@@ -40,6 +40,37 @@ const calculateAvgPayoutTime = (
   return `${Math.round(avgDays)} days`;
 };
 
+// Helper function to format pending time with color
+const formatPendingTime = (hackathonEndDate: bigint) => {
+  const now = BigInt(Math.floor(Date.now() / 1000));
+  const diff = now - hackathonEndDate;
+  const days = Number(diff) / (24 * 60 * 60);
+
+  let colorClass = "";
+  if (days < 10) {
+    colorClass = "text-blue-600";
+  } else if (days < 30) {
+    colorClass = "text-amber-600";
+  } else {
+    colorClass = "text-red-600";
+  }
+
+  return {
+    text: `${Math.floor(days)} days pending`,
+    colorClass,
+  };
+};
+
+// Helper function to format date
+const formatDate = (timestamp: bigint) => {
+  const date = new Date(Number(timestamp) * 1000);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
 export default function CompanyPage({
   params,
 }: {
@@ -76,21 +107,31 @@ export default function CompanyPage({
   ] = companyData;
 
   // Transform reviews data into the format our UI expects
-  const reviews = reviewsData.map((review: any) => ({
-    id: review.sponsor, // Using sponsor as ID since we don't have review ID in the data
-    rating: Number(review.rating),
-    comment: review.comment,
-    evidence:
-      review.evidenceHashes.length > 0
-        ? "Evidence provided"
-        : "No evidence provided",
-    hasPhoto: review.evidenceHashes.length > 0,
-    time: formatRelativeTime(review.hackathonEndDate),
-    anonymous: true, // All reviews are anonymous in the contract
-    verified: review.prizePaidOut, // Consider a review verified if the prize was paid out
-    prizeAmount: Number(review.prizeAmount),
-    prizePaidOut: review.prizePaidOut,
-  }));
+  const reviews = reviewsData.map((review: any) => {
+    const pendingTime = !review.prizePaidOut
+      ? formatPendingTime(review.hackathonEndDate)
+      : null;
+
+    return {
+      id: review.sponsor,
+      rating: Number(review.rating),
+      comment: review.comment,
+      evidence:
+        review.evidenceHashes.length > 0
+          ? "Evidence provided"
+          : "No evidence provided",
+      hasPhoto: review.evidenceHashes.length > 0,
+      time: review.prizePaidOut
+        ? formatRelativeTime(review.hackathonEndDate)
+        : pendingTime?.text,
+      timeColorClass: pendingTime?.colorClass,
+      anonymous: true,
+      verified: review.prizePaidOut,
+      prizeAmount: Number(review.prizeAmount),
+      prizePaidOut: review.prizePaidOut,
+      hackathonEndDate: formatDate(review.hackathonEndDate),
+    };
+  });
 
   const getRatingColor = (rating: number) => {
     if (rating >= 4) return "text-green-600";
@@ -175,11 +216,7 @@ export default function CompanyPage({
             </Card>
 
             {/* Reviews */}
-            <Reviews
-              reviews={reviews}
-              title="Anonymized Reports & Evidence"
-              showEvidence={true}
-            />
+            <Reviews reviews={reviews} title="Reviews" showEvidence={true} />
           </div>
 
           {/* Sidebar */}
