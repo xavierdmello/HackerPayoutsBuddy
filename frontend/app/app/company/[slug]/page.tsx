@@ -11,7 +11,7 @@ import { Header } from "@/components/header";
 import { SubmitReportButton } from "@/components/submit-report-button";
 import { Reviews } from "@/components/reviews";
 import Link from "next/link";
-import { useChainId, useReadContract } from "wagmi";
+import { useChainId, useReadContract, useAccount } from "wagmi";
 import config from "@/app/config";
 import { abi } from "@/app/abi";
 import { use } from "react";
@@ -78,6 +78,7 @@ export default function CompanyPage({
 }) {
   const { slug } = use(params);
   const chainId = useChainId();
+  const { address } = useAccount();
   const { data: companyData } = useReadContract({
     abi,
     address: config[chainId].address,
@@ -132,8 +133,23 @@ export default function CompanyPage({
       prizeAmount: Number(review.prizeAmount),
       prizePaidOut: review.prizePaidOut,
       hackathonEndDate: formatDate(review.hackathonEndDate),
+      reviewer: review.reviewer,
     };
   });
+
+  // Find user's review if it exists
+  const userReview = address
+    ? reviews.find(
+        (review) => review.reviewer.toLowerCase() === address.toLowerCase()
+      )
+    : null;
+
+  // Filter out user's review from anonymous reviews
+  const anonymousReviews = address
+    ? reviews.filter(
+        (review) => review.reviewer.toLowerCase() !== address.toLowerCase()
+      )
+    : reviews;
 
   const getRatingColor = (rating: number) => {
     if (rating >= 4) return "text-green-600";
@@ -223,12 +239,31 @@ export default function CompanyPage({
               </CardContent>
             </Card>
 
-            {/* Reviews */}
-            <Reviews
-              reviews={reviews}
-              title="Anonymous Reviews"
-              showEvidence={true}
-            />
+            {/* Your Review */}
+            {userReview && (
+              <Reviews
+                reviews={[userReview]}
+                title="Your Anonymous Review"
+                showEvidence={true}
+              />
+            )}
+
+            {/* Anonymous Reviews */}
+            {anonymousReviews.length > 0 ? (
+              <Reviews
+                reviews={anonymousReviews}
+                title="Other Reviews"
+                showEvidence={true}
+              />
+            ) : (
+              <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
+                <CardContent className="p-6">
+                  <p className="text-gray-500 text-center">
+                    No other reviews yet
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
