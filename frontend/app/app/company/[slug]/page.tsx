@@ -107,13 +107,13 @@ export default function CompanyPage({
   ] = companyData;
 
   // Transform reviews data into the format our UI expects
-  const reviews = reviewsData.map((review: any) => {
+  const reviews = reviewsData.map((review: any, index: number) => {
     const pendingTime = !review.prizePaidOut
       ? formatPendingTime(review.hackathonEndDate)
       : null;
 
     return {
-      id: review.organization,
+      id: `${review.organization}-${index}`,
       rating: Number(review.rating),
       title: review.title,
       comment: review.comment,
@@ -140,6 +140,12 @@ export default function CompanyPage({
     if (rating >= 3) return "text-yellow-600";
     return "text-red-600";
   };
+
+  // Calculate rating breakdown
+  const ratingBreakdown = reviews.reduce((acc, review) => {
+    acc[review.rating] = (acc[review.rating] || 0) + 1;
+    return acc;
+  }, {} as Record<number, number>);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -227,7 +233,7 @@ export default function CompanyPage({
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Rating Breakdown - We'll need to implement this with real data later */}
+            {/* Rating Breakdown */}
             <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-gray-900">
@@ -235,9 +241,44 @@ export default function CompanyPage({
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="text-center text-gray-500">
-                  Rating breakdown coming soon
-                </div>
+                {[5, 4, 3, 2, 1].map((rating) => {
+                  const count = ratingBreakdown[rating] || 0;
+                  const percentage =
+                    Number(totalReviews) > 0
+                      ? (count / Number(totalReviews)) * 100
+                      : 0;
+                  return (
+                    <div key={rating} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center space-x-1">
+                          <Star
+                            className={`w-4 h-4 ${
+                              rating >= 4
+                                ? "fill-green-500 text-green-500"
+                                : rating >= 3
+                                ? "fill-yellow-500 text-yellow-500"
+                                : "fill-red-500 text-red-500"
+                            }`}
+                          />
+                          <span className="font-medium">{rating} stars</span>
+                        </div>
+                        <span className="text-gray-500">{count} reviews</span>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${
+                            rating >= 4
+                              ? "bg-green-500"
+                              : rating >= 3
+                              ? "bg-yellow-500"
+                              : "bg-red-500"
+                          }`}
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
           </div>
