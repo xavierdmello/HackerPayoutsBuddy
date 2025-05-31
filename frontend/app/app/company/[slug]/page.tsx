@@ -137,14 +137,14 @@ export default function CompanyPage({
     };
   });
 
-  // Find user's review if it exists
-  const userReview = address
-    ? reviews.find(
+  // Find user's reviews if they exist
+  const userReviews = address
+    ? reviews.filter(
         (review) => review.reviewer.toLowerCase() === address.toLowerCase()
       )
-    : null;
+    : [];
 
-  // Filter out user's review from anonymous reviews
+  // Filter out user's reviews from anonymous reviews
   const anonymousReviews = address
     ? reviews.filter(
         (review) => review.reviewer.toLowerCase() !== address.toLowerCase()
@@ -239,16 +239,16 @@ export default function CompanyPage({
               </CardContent>
             </Card>
 
-            {/* Your Review */}
-            {userReview && (
+            {/* Your Reviews */}
+            {userReviews.length > 0 && (
               <Reviews
-                reviews={[userReview]}
-                title="Your Anonymous Review"
+                reviews={userReviews}
+                title="Your Anonymous Reviews"
                 showEvidence={true}
               />
             )}
 
-            {/* Anonymous Reviews */}
+            {/* Other Reviews */}
             {anonymousReviews.length > 0 ? (
               <Reviews
                 reviews={anonymousReviews}
