@@ -1,9 +1,16 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Search, Star, MessageSquare, TrendingDown, TrendingUp, Plus } from "lucide-react"
-import { Header } from "@/components/header"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Search,
+  Star,
+  MessageSquare,
+  TrendingDown,
+  TrendingUp,
+  Plus,
+} from "lucide-react";
+import { Header } from "@/components/header";
+import Link from "next/link";
 
 const companies = [
   {
@@ -54,25 +61,40 @@ const companies = [
     lastReview: "4 days ago",
     status: "bad",
   },
-]
+];
 
 const recentReviews = [
-  { hackathon: "ETHGlobal NYC", rating: 5, comment: "Paid within 3 days, excellent communication", time: "2h ago" },
-  { hackathon: "TreeHacks", rating: 1, comment: "Still waiting after 8 months, no response", time: "4h ago" },
-  { hackathon: "HackMIT", rating: 4, comment: "Took 2 weeks but they kept us updated", time: "6h ago" },
-]
+  {
+    hackathon: "ETHGlobal NYC",
+    rating: 5,
+    comment: "Paid within 3 days, excellent communication",
+    time: "2h ago",
+  },
+  {
+    hackathon: "TreeHacks",
+    rating: 1,
+    comment: "Still waiting after 8 months, no response",
+    time: "4h ago",
+  },
+  {
+    hackathon: "HackMIT",
+    rating: 4,
+    comment: "Took 2 weeks but they kept us updated",
+    time: "6h ago",
+  },
+];
 
 const worstOffenders = [
   { name: "TreeHacks", avgDelay: "240 days", rating: 1.2 },
   { name: "CalHacks", avgDelay: "180 days", rating: 1.8 },
   { name: "ETHDenver", avgDelay: "90 days", rating: 2.1 },
-]
+];
 
 const bestCompanies = [
   { name: "ETHGlobal", avgPayout: "7 days", rating: 4.8 },
   { name: "HackMIT", avgPayout: "14 days", rating: 4.2 },
   { name: "PennApps", avgPayout: "21 days", rating: 3.8 },
-]
+];
 
 export default function AppPage() {
   return (
@@ -105,7 +127,9 @@ export default function AppPage() {
             {/* Companies Table */}
             <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-gray-900">Hackathon Companies</CardTitle>
+                <CardTitle className="text-xl font-semibold text-gray-900">
+                  Hackathon Companies
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 {/* Table Headers */}
@@ -113,49 +137,82 @@ export default function AppPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 flex-1">
                       <div className="flex-1">
-                        <span className="text-sm font-medium text-gray-700">Company</span>
+                        <span className="text-sm font-medium text-gray-700">
+                          Company
+                        </span>
                       </div>
-                      <div className="text-sm font-medium text-gray-700 w-24">Avg Payout</div>
-                      <div className="text-sm font-medium text-gray-700 w-20">Rating</div>
-                      <div className="text-sm font-medium text-gray-700 w-20">Reviews</div>
-                      <div className="text-sm font-medium text-gray-700 w-24">Last Review</div>
+                      <div className="text-sm font-medium text-gray-700 w-24">
+                        Avg Payout
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 w-20">
+                        Rating
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 w-20">
+                        Reviews
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 w-24">
+                        Last Review
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="divide-y divide-gray-100">
                   {companies.map((company, index) => (
-                    <div key={index} className="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4 flex-1">
-                          <Link
-                            href={`/app/company/${company.name.toLowerCase().replace(/\s+/g, "-")}`}
-                            className="flex-1 hover:text-blue-600"
-                          >
-                            <div className="font-medium text-gray-900 hover:text-blue-600 transition-colors">
-                              {company.name}
+                    <Link
+                      key={index}
+                      href={`/app/company/${company.name
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                      className="block hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4 flex-1">
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-900 hover:text-blue-600 transition-colors">
+                                {company.name}
+                              </div>
                             </div>
-                          </Link>
 
-                          <div className="text-sm text-gray-600 w-24">{company.avgPayoutTime}</div>
+                            <div className="text-sm text-gray-600 w-24">
+                              {company.avgPayoutTime}
+                            </div>
 
-                          <div className="flex items-center space-x-1 w-20">
-                            <Star
-                              className={`w-4 h-4 ${company.rating >= 4 ? "fill-green-500 text-green-500" : company.rating >= 3 ? "fill-yellow-500 text-yellow-500" : "fill-red-500 text-red-500"}`}
-                            />
-                            <span
-                              className={`text-sm font-medium ${company.rating >= 4 ? "text-green-600" : company.rating >= 3 ? "text-yellow-600" : "text-red-600"}`}
-                            >
-                              {company.rating}
-                            </span>
+                            <div className="flex items-center space-x-1 w-20">
+                              <Star
+                                className={`w-4 h-4 ${
+                                  company.rating >= 4
+                                    ? "fill-green-500 text-green-500"
+                                    : company.rating >= 3
+                                    ? "fill-yellow-500 text-yellow-500"
+                                    : "fill-red-500 text-red-500"
+                                }`}
+                              />
+                              <span
+                                className={`text-sm font-medium ${
+                                  company.rating >= 4
+                                    ? "text-green-600"
+                                    : company.rating >= 3
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {company.rating}
+                              </span>
+                            </div>
+
+                            <div className="text-sm text-gray-500 w-20">
+                              {company.reviewCount} reviews
+                            </div>
+
+                            <div className="text-sm text-gray-500 w-24">
+                              {company.lastReview}
+                            </div>
                           </div>
-
-                          <div className="text-sm text-gray-500 w-20">{company.reviewCount} reviews</div>
-
-                          <div className="text-sm text-gray-500 w-24">{company.lastReview}</div>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </CardContent>
@@ -174,14 +231,25 @@ export default function AppPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {recentReviews.map((review, index) => (
-                  <div key={index} className="border-b border-gray-100 last:border-0 pb-4 last:pb-0">
+                  <div
+                    key={index}
+                    className="border-b border-gray-100 last:border-0 pb-4 last:pb-0"
+                  >
                     <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium text-sm text-gray-900">{review.hackathon}</div>
+                      <div className="font-medium text-sm text-gray-900">
+                        {review.hackathon}
+                      </div>
                       <div className="flex items-center space-x-1">
                         <Star
-                          className={`w-3 h-3 ${review.rating >= 4 ? "fill-green-500 text-green-500" : "fill-red-500 text-red-500"}`}
+                          className={`w-3 h-3 ${
+                            review.rating >= 4
+                              ? "fill-green-500 text-green-500"
+                              : "fill-red-500 text-red-500"
+                          }`}
                         />
-                        <span className="text-xs text-gray-500">{review.time}</span>
+                        <span className="text-xs text-gray-500">
+                          {review.time}
+                        </span>
                       </div>
                     </div>
                     <p className="text-xs text-gray-600">{review.comment}</p>
@@ -200,14 +268,23 @@ export default function AppPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {worstOffenders.map((company, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <div>
-                      <div className="font-medium text-sm text-gray-900">{company.name}</div>
-                      <div className="text-xs text-gray-500">{company.avgDelay} avg</div>
+                      <div className="font-medium text-sm text-gray-900">
+                        {company.name}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {company.avgDelay} avg
+                      </div>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Star className="w-3 h-3 fill-red-500 text-red-500" />
-                      <span className="text-sm text-red-600 font-medium">{company.rating}</span>
+                      <span className="text-sm text-red-600 font-medium">
+                        {company.rating}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -224,14 +301,23 @@ export default function AppPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {bestCompanies.map((company, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <div>
-                      <div className="font-medium text-sm text-gray-900">{company.name}</div>
-                      <div className="text-xs text-gray-500">{company.avgPayout} avg</div>
+                      <div className="font-medium text-sm text-gray-900">
+                        {company.name}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {company.avgPayout} avg
+                      </div>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Star className="w-3 h-3 fill-green-500 text-green-500" />
-                      <span className="text-sm text-green-600 font-medium">{company.rating}</span>
+                      <span className="text-sm text-green-600 font-medium">
+                        {company.rating}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -241,5 +327,5 @@ export default function AppPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
