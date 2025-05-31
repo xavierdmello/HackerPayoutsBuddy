@@ -83,9 +83,8 @@ export function SubmitReportModal({
   const handleOrgChange = (value: string) => {
     setOrganization(value);
     if (value.length > 0) {
-      const normalizedValue = normalizeString(value);
       const filtered = existingOrganizations.filter((org) =>
-        normalizeString(org).includes(normalizedValue)
+        org.toLowerCase().includes(value.toLowerCase())
       );
       setOrgSuggestions(filtered);
       setShowOrgSuggestions(true);
@@ -97,9 +96,8 @@ export function SubmitReportModal({
   const handleHackathonChange = (value: string) => {
     setHackathon(value);
     if (value.length > 0) {
-      const normalizedValue = normalizeString(value);
       const filtered = existingHackathons.filter((hack) =>
-        normalizeString(hack).includes(normalizedValue)
+        hack.toLowerCase().includes(value.toLowerCase())
       );
       setHackathonSuggestions(filtered);
       setShowHackathonSuggestions(true);
