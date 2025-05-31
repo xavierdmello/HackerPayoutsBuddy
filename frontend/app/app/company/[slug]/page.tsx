@@ -54,7 +54,14 @@ export default function CompanyPage({
     args: [slug],
   });
 
-  if (!companyData) {
+  const { data: reviewsData } = useReadContract({
+    abi,
+    address: config[chainId].address,
+    functionName: "getAllReviewsFromSponsor",
+    args: [slug],
+  });
+
+  if (!companyData || !reviewsData) {
     return <div>Loading...</div>;
   }
 
@@ -68,39 +75,28 @@ export default function CompanyPage({
     paidOutReviews,
   ] = companyData;
 
+  // Transform reviews data into the format our UI expects
+  const reviews = reviewsData.map((review: any) => ({
+    id: review.sponsor, // Using sponsor as ID since we don't have review ID in the data
+    rating: Number(review.rating),
+    comment: review.comment,
+    evidence:
+      review.evidenceHashes.length > 0
+        ? "Evidence provided"
+        : "No evidence provided",
+    hasPhoto: review.evidenceHashes.length > 0,
+    time: formatRelativeTime(review.hackathonEndDate),
+    anonymous: true, // All reviews are anonymous in the contract
+    verified: review.prizePaidOut, // Consider a review verified if the prize was paid out
+    prizeAmount: Number(review.prizeAmount),
+    prizePaidOut: review.prizePaidOut,
+  }));
+
   const getRatingColor = (rating: number) => {
     if (rating >= 4) return "text-green-600";
     if (rating >= 3) return "text-yellow-600";
     return "text-red-600";
   };
-
-  // Mock reviews for now - we'll implement this later
-  const mockReviews = [
-    {
-      id: "1",
-      rating: 5,
-      comment:
-        "Paid within 3 days of announcement. Excellent communication throughout the process. They even sent a follow-up email to confirm receipt.",
-      evidence:
-        "Email confirmation showing payment processed on March 15th, 2024. Prize amount: $5,000 for 1st place in DeFi track.",
-      hasPhoto: true,
-      time: "2 days ago",
-      anonymous: false,
-      verified: true,
-    },
-    {
-      id: "2",
-      rating: 1,
-      comment:
-        "Still waiting after 8 months. No response to emails. This is completely unacceptable for a major hackathon.",
-      evidence:
-        "Screenshots of unanswered emails sent to organizers. Last response was in July 2024 saying 'payment processing soon'.",
-      hasPhoto: true,
-      time: "1 week ago",
-      anonymous: true,
-      verified: true,
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -180,7 +176,7 @@ export default function CompanyPage({
 
             {/* Reviews */}
             <Reviews
-              reviews={mockReviews}
+              reviews={reviews}
               title="Anonymized Reports & Evidence"
               showEvidence={true}
             />

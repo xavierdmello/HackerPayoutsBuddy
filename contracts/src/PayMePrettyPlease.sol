@@ -129,6 +129,7 @@ contract PayMePrettyPlease {
         );
     }
 
+    //maybe unused
     function getReviewsBySponsor(string memory _sponsor) public view returns (uint256[] memory) {
         uint256[] memory sponsorReviews = new uint256[](reviewCount);
         uint256 count = 0;
