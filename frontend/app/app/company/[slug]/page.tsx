@@ -1,9 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Star, Clock, AlertTriangle, TrendingUp, ArrowLeft } from "lucide-react"
-import { Header } from "@/components/header"
-import { SubmitReportButton } from "@/components/submit-report-button"
-import { Reviews } from "@/components/reviews"
-import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Star,
+  Clock,
+  AlertTriangle,
+  TrendingUp,
+  ArrowLeft,
+} from "lucide-react";
+import { Header } from "@/components/header";
+import { SubmitReportButton } from "@/components/submit-report-button";
+import { Reviews } from "@/components/reviews";
+import Link from "next/link";
 
 // Mock data - in real app this would come from API based on slug
 const companyData = {
@@ -49,7 +55,7 @@ const companyData = {
       1: 35,
     },
   },
-}
+};
 
 const mockReviews = [
   {
@@ -79,8 +85,10 @@ const mockReviews = [
   {
     id: "3",
     rating: 4,
-    comment: "Took 2 weeks but they kept us updated every few days. Professional handling overall.",
-    evidence: "Payment confirmation and communication timeline showing regular updates from organizers.",
+    comment:
+      "Took 2 weeks but they kept us updated every few days. Professional handling overall.",
+    evidence:
+      "Payment confirmation and communication timeline showing regular updates from organizers.",
     hasPhoto: false,
     time: "3 weeks ago",
     anonymous: false,
@@ -98,20 +106,20 @@ const mockReviews = [
     anonymous: true,
     verified: true,
   },
-]
+];
 
 export default function CompanyPage({ params }: { params: { slug: string } }) {
-  const company = companyData[params.slug as keyof typeof companyData]
+  const company = companyData[params.slug as keyof typeof companyData];
 
   if (!company) {
-    return <div>Company not found</div>
+    return <div>Company not found</div>;
   }
 
   const getRatingColor = (rating: number) => {
-    if (rating >= 4) return "text-green-600"
-    if (rating >= 3) return "text-yellow-600"
-    return "text-red-600"
-  }
+    if (rating >= 4) return "text-green-600";
+    if (rating >= 3) return "text-yellow-600";
+    return "text-red-600";
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -119,7 +127,10 @@ export default function CompanyPage({ params }: { params: { slug: string } }) {
 
       <div className="container mx-auto px-6 py-8">
         {/* Back Button */}
-        <Link href="/app" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
+        <Link
+          href="/app"
+          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Companies
         </Link>
@@ -132,36 +143,54 @@ export default function CompanyPage({ params }: { params: { slug: string } }) {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{company.name}</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                      {company.name}
+                    </h1>
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-1">
-                        <Star className={`w-5 h-5 fill-current ${getRatingColor(company.rating)}`} />
-                        <span className={`text-xl font-semibold ${getRatingColor(company.rating)}`}>
+                        <Star
+                          className={`w-5 h-5 fill-current ${getRatingColor(
+                            company.rating
+                          )}`}
+                        />
+                        <span
+                          className={`text-xl font-semibold ${getRatingColor(
+                            company.rating
+                          )}`}
+                        >
                           {company.rating}
                         </span>
-                        <span className="text-gray-500">({company.totalReviews} reviews)</span>
+                        <span className="text-gray-500">
+                          ({company.totalReviews} reviews)
+                        </span>
                       </div>
                     </div>
                   </div>
-                  <SubmitReportButton />
+                  <SubmitReportButton companyName={company.name} />
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <Clock className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                    <div className="text-lg font-semibold text-gray-900">{company.avgPayoutTime}</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {company.avgPayoutTime}
+                    </div>
                     <div className="text-sm text-gray-500">Avg Payout Time</div>
                   </div>
 
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <AlertTriangle className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-                    <div className="text-lg font-semibold text-gray-900">{company.pendingPayouts}</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {company.pendingPayouts}
+                    </div>
                     <div className="text-sm text-gray-500">Pending Payouts</div>
                   </div>
 
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <TrendingUp className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                    <div className="text-lg font-semibold text-gray-900">{company.totalReviews}</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {company.totalReviews}
+                    </div>
                     <div className="text-sm text-gray-500">Total Reviews</div>
                   </div>
                 </div>
@@ -169,7 +198,11 @@ export default function CompanyPage({ params }: { params: { slug: string } }) {
             </Card>
 
             {/* Reviews */}
-            <Reviews reviews={mockReviews} title="Anonymized Reports & Evidence" showEvidence={true} />
+            <Reviews
+              reviews={mockReviews}
+              title="Anonymized Reports & Evidence"
+              showEvidence={true}
+            />
           </div>
 
           {/* Sidebar */}
@@ -177,12 +210,17 @@ export default function CompanyPage({ params }: { params: { slug: string } }) {
             {/* Rating Breakdown */}
             <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-gray-900">Rating Breakdown</CardTitle>
+                <CardTitle className="text-lg font-semibold text-gray-900">
+                  Rating Breakdown
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {[5, 4, 3, 2, 1].map((stars) => {
-                  const count = company.ratingBreakdown[stars as keyof typeof company.ratingBreakdown]
-                  const percentage = (count / company.totalReviews) * 100
+                  const count =
+                    company.ratingBreakdown[
+                      stars as keyof typeof company.ratingBreakdown
+                    ];
+                  const percentage = (count / company.totalReviews) * 100;
 
                   return (
                     <div key={stars} className="flex items-center space-x-3">
@@ -193,14 +231,18 @@ export default function CompanyPage({ params }: { params: { slug: string } }) {
                       <div className="flex-1 bg-gray-200 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${
-                            stars >= 4 ? "bg-green-500" : stars >= 3 ? "bg-yellow-500" : "bg-red-500"
+                            stars >= 4
+                              ? "bg-green-500"
+                              : stars >= 3
+                              ? "bg-yellow-500"
+                              : "bg-red-500"
                           }`}
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
                       <span className="text-sm text-gray-600 w-8">{count}</span>
                     </div>
-                  )
+                  );
                 })}
               </CardContent>
             </Card>
@@ -208,5 +250,5 @@ export default function CompanyPage({ params }: { params: { slug: string } }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

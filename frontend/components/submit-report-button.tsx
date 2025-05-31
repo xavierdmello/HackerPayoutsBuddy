@@ -1,14 +1,20 @@
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
-import { SubmitReportModal } from "./submit-report-modal"
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { SubmitReportModal } from "./submit-report-modal";
 
 interface SubmitReportButtonProps {
-  variant?: "default" | "outline"
-  size?: "default" | "sm" | "lg"
-  className?: string
+  variant?: "default" | "outline";
+  size?: "default" | "sm" | "lg";
+  className?: string;
+  companyName?: string;
 }
 
-export function SubmitReportButton({ variant = "default", size = "default", className = "" }: SubmitReportButtonProps) {
+export function SubmitReportButton({
+  variant = "default",
+  size = "default",
+  className = "",
+  companyName,
+}: SubmitReportButtonProps) {
   return (
     <SubmitReportModal
       trigger={
@@ -21,6 +27,7 @@ export function SubmitReportButton({ variant = "default", size = "default", clas
           Submit Report
         </Button>
       }
+      initialCompanyName={companyName}
     />
-  )
+  );
 }
