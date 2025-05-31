@@ -136,8 +136,8 @@ export default function AppPage() {
                           Company
                         </span>
                       </div>
-                      <div className="text-sm font-medium text-gray-700 w-24">
-                        Avg Payout
+                      <div className="text-sm font-medium text-gray-700 w-32">
+                        Avg. Payout Time
                       </div>
                       <div className="text-sm font-medium text-gray-700 w-20">
                         Rating
@@ -170,7 +170,7 @@ export default function AppPage() {
                               </div>
                             </div>
 
-                            <div className="text-sm text-gray-600 w-24">
+                            <div className="text-sm text-gray-600 w-32">
                               {company.avgPayoutTime}
                             </div>
 
