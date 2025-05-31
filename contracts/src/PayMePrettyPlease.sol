@@ -44,11 +44,8 @@ contract PayMePrettyPlease {
         uint256 _payoutDate
     ) public {
         require(_rating >= 1 && _rating <= 5, "Rating must be between 1 and 5");
-        require(_hackathonEndDate <= block.timestamp, "Hackathon end date must be in the past");
-        if (_isAlreadyPaidOut) {
-            require(_payoutDate >= _hackathonEndDate, "Payout date must be after hackathon end");
-            require(_payoutDate <= block.timestamp, "Payout date must be in the past");
-        }
+      
+
         
         uint256 reviewId = reviewCount++;
         

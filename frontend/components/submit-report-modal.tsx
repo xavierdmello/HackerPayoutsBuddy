@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useWriteContract } from "wagmi";
+import { abi } from "../app/abi";
+import config from "../app/config";
 import {
   Dialog,
   DialogContent,
@@ -54,6 +57,7 @@ export function SubmitReportModal({
   trigger,
   initialCompanyName,
 }: SubmitReportModalProps) {
+  const { writeContract } = useWriteContract();
   const [open, setOpen] = useState(false);
   const [aiAgentOpen, setAiAgentOpen] = useState(false);
   const [rating, setRating] = useState(0);
@@ -68,6 +72,9 @@ export function SubmitReportModal({
     useState(false);
   const [screenshots, setScreenshots] = useState<File[]>([]);
   const [prizePaidOut, setPrizePaidOut] = useState(false);
+  const [description, setDescription] = useState("");
+  const [prizeAmount, setPrizeAmount] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const handleOrgChange = (value: string) => {
     setOrganization(value);
@@ -265,13 +272,21 @@ export function SubmitReportModal({
                 type="number"
                 placeholder="e.g., 5000"
                 min="0"
+                value={prizeAmount}
+                onChange={(e) => setPrizeAmount(e.target.value)}
               />
             </div>
 
             {/* Hackathon End Date */}
             <div className="space-y-2">
               <Label htmlFor="endDate">Hackathon End Date *</Label>
-              <Input id="endDate" type="date" required />
+              <Input
+                id="endDate"
+                type="date"
+                required
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
             </div>
 
             {/* Prize Paid Out */}
@@ -302,6 +317,8 @@ export function SubmitReportModal({
                 placeholder="Describe your experience with the payout process, communication, any issues encountered, etc."
                 rows={4}
                 required
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
 
@@ -362,7 +379,34 @@ export function SubmitReportModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+              {/* string memory _sponsor, uint8 _rating, string memory _comment,
+              string[] memory _evidenceHashes, uint256 _prizeAmount, uint256
+              _hackathonEndDate, bool _isAlreadyPaidOut, uint256 _payoutDate */}
+              <Button
+                onClick={() =>
+                  writeContract({
+                    abi,
+                    address: config[296].address as `0x${string}`,
+                    functionName: "submitReview",
+                    args: [
+                      organization,
+                      rating,
+                      description,
+                      [], // evidenceHashes - empty array for now
+                      BigInt(prizeAmount || "0"),
+                      endDate
+                        ? BigInt(new Date(endDate).getTime() / 1000)
+                        : BigInt(0),
+                      prizePaidOut,
+                      prizePaidOut
+                        ? BigInt(new Date().getTime() / 1000)
+                        : BigInt(0),
+                    ],
+                  })
+                }
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700"
+              >
                 Submit Report
               </Button>
             </div>
