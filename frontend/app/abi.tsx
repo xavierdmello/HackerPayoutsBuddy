@@ -28,16 +28,18 @@ export const abi = [
   {
     type: "function",
     name: "getAllReviewsFromSponsor",
-    inputs: [{ name: "_sponsor", type: "string", internalType: "string" }],
+    inputs: [{ name: "_organization", type: "string", internalType: "string" }],
     outputs: [
       {
         name: "",
         type: "tuple[]",
         internalType: "struct PayMePrettyPlease.Review[]",
         components: [
-          { name: "sponsor", type: "string", internalType: "string" },
-          { name: "rating", type: "uint8", internalType: "uint8" },
+          { name: "organization", type: "string", internalType: "string" },
+          { name: "eventName", type: "string", internalType: "string" },
+          { name: "title", type: "string", internalType: "string" },
           { name: "comment", type: "string", internalType: "string" },
+          { name: "rating", type: "uint8", internalType: "uint8" },
           {
             name: "evidenceHashes",
             type: "string[]",
@@ -60,7 +62,7 @@ export const abi = [
   {
     type: "function",
     name: "getOrganization",
-    inputs: [{ name: "_sponsor", type: "string", internalType: "string" }],
+    inputs: [{ name: "_organization", type: "string", internalType: "string" }],
     outputs: [
       { name: "name", type: "string", internalType: "string" },
       { name: "avgPayoutTime", type: "uint256", internalType: "uint256" },
@@ -89,9 +91,11 @@ export const abi = [
         type: "tuple",
         internalType: "struct PayMePrettyPlease.Review",
         components: [
-          { name: "sponsor", type: "string", internalType: "string" },
-          { name: "rating", type: "uint8", internalType: "uint8" },
+          { name: "organization", type: "string", internalType: "string" },
+          { name: "eventName", type: "string", internalType: "string" },
+          { name: "title", type: "string", internalType: "string" },
           { name: "comment", type: "string", internalType: "string" },
+          { name: "rating", type: "uint8", internalType: "uint8" },
           {
             name: "evidenceHashes",
             type: "string[]",
@@ -114,7 +118,7 @@ export const abi = [
   {
     type: "function",
     name: "getReviewsBySponsor",
-    inputs: [{ name: "_sponsor", type: "string", internalType: "string" }],
+    inputs: [{ name: "_organization", type: "string", internalType: "string" }],
     outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
     stateMutability: "view",
   },
@@ -159,9 +163,11 @@ export const abi = [
     name: "reviews",
     inputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     outputs: [
-      { name: "sponsor", type: "string", internalType: "string" },
-      { name: "rating", type: "uint8", internalType: "uint8" },
+      { name: "organization", type: "string", internalType: "string" },
+      { name: "eventName", type: "string", internalType: "string" },
+      { name: "title", type: "string", internalType: "string" },
       { name: "comment", type: "string", internalType: "string" },
+      { name: "rating", type: "uint8", internalType: "uint8" },
       { name: "prizeAmount", type: "uint256", internalType: "uint256" },
       { name: "prizePaidOut", type: "bool", internalType: "bool" },
       { name: "hackathonEndDate", type: "uint256", internalType: "uint256" },
@@ -174,9 +180,11 @@ export const abi = [
     type: "function",
     name: "submitReview",
     inputs: [
-      { name: "_sponsor", type: "string", internalType: "string" },
-      { name: "_rating", type: "uint8", internalType: "uint8" },
+      { name: "_organization", type: "string", internalType: "string" },
+      { name: "_eventName", type: "string", internalType: "string" },
+      { name: "_title", type: "string", internalType: "string" },
       { name: "_comment", type: "string", internalType: "string" },
+      { name: "_rating", type: "uint8", internalType: "uint8" },
       { name: "_evidenceHashes", type: "string[]", internalType: "string[]" },
       { name: "_prizeAmount", type: "uint256", internalType: "uint256" },
       { name: "_hackathonEndDate", type: "uint256", internalType: "uint256" },
@@ -197,7 +205,7 @@ export const abi = [
         internalType: "uint256",
       },
       {
-        name: "sponsor",
+        name: "organization",
         type: "string",
         indexed: false,
         internalType: "string",
@@ -228,7 +236,13 @@ export const abi = [
         internalType: "address",
       },
       {
-        name: "sponsor",
+        name: "organization",
+        type: "string",
+        indexed: false,
+        internalType: "string",
+      },
+      {
+        name: "eventName",
         type: "string",
         indexed: false,
         internalType: "string",

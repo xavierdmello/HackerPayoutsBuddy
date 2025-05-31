@@ -63,6 +63,7 @@ export function SubmitReportModal({
   const [rating, setRating] = useState(0);
   const [organization, setOrganization] = useState(initialCompanyName || "");
   const [hackathon, setHackathon] = useState("");
+  const [title, setTitle] = useState("");
   const [orgSuggestions, setOrgSuggestions] = useState<string[]>([]);
   const [hackathonSuggestions, setHackathonSuggestions] = useState<string[]>(
     []
@@ -210,6 +211,18 @@ export function SubmitReportModal({
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Review Title */}
+            <div className="space-y-2">
+              <Label htmlFor="title">Review Title *</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Great experience with ETHGlobal NYC 2024"
+                required
+              />
             </div>
 
             {/* Rating */}
@@ -382,6 +395,18 @@ export function SubmitReportModal({
               {/* string memory _sponsor, uint8 _rating, string memory _comment,
               string[] memory _evidenceHashes, uint256 _prizeAmount, uint256
               _hackathonEndDate, bool _isAlreadyPaidOut, uint256 _payoutDate */}
+
+              {/* string memory _organization,
+        string memory _eventName,
+        string memory _title,
+        string memory _comment,
+        uint8 _rating,
+        string[] memory _evidenceHashes,
+        uint256 _prizeAmount,
+        uint256 _hackathonEndDate,
+        bool _isAlreadyPaidOut,
+        uint256 _payoutDate
+    ) public { */}
               <Button
                 onClick={() =>
                   writeContract({
@@ -390,8 +415,10 @@ export function SubmitReportModal({
                     functionName: "submitReview",
                     args: [
                       organization,
-                      rating,
+                      hackathon,
+                      title,
                       description,
+                      rating,
                       [], // evidenceHashes - empty array for now
                       BigInt(prizeAmount || "0"),
                       endDate
