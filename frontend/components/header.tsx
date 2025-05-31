@@ -1,12 +1,13 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 export function Header() {
   const pathname = usePathname()
-  const isAppPage = pathname === "/app"
+  const isHomePage = pathname === "/"
 
   return (
     <header className="border-b border-gray-100">
@@ -18,13 +19,19 @@ export function Header() {
           </Link>
         </div>
 
-        {!isAppPage && (
+        {isHomePage && (
           <div className="flex items-center space-x-4">
             <Link href="/app">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full px-6">
                 Go to App
               </Button>
             </Link>
+          </div>
+        )}
+
+        {!isHomePage && (
+          <div className="flex items-center space-x-4">
+            <ConnectButton />
           </div>
         )}
       </div>
