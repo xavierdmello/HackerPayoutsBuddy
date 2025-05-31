@@ -57,7 +57,17 @@ contract PayMePrettyPlease {
         Organization storage org = organizations[_organization];
         if (org.totalReviews == 0) {
             // New organization, add to names array
-            organizationNames.push(_organization);
+            // Check if organization already exists in array (case-insensitive)
+            bool exists = false;
+            for (uint i = 0; i < organizationNames.length; i++) {
+                if (compareStrings(organizationNames[i], _organization)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                organizationNames.push(_organization);
+            }
         }
         org.name = _organization;
         org.totalReviews++;
@@ -124,7 +134,16 @@ contract PayMePrettyPlease {
         uint256 pendingPayouts,
         uint256 paidOutReviews
     ) {
-        Organization storage org = organizations[_organization];
+        // Find the exact organization name from the array (case-insensitive)
+        string memory exactName = _organization;
+        for (uint i = 0; i < organizationNames.length; i++) {
+            if (compareStrings(organizationNames[i], _organization)) {
+                exactName = organizationNames[i];
+                break;
+            }
+        }
+        
+        Organization storage org = organizations[exactName];
         return (
             org.name,
             org.paidOutReviews > 0 ? org.totalPayoutTime / org.paidOutReviews : 0,
@@ -169,7 +188,7 @@ contract PayMePrettyPlease {
         // First count how many reviews match
         uint256 matchCount = 0;
         for (uint256 i = 0; i < reviewCount; i++) {
-            if (compareStrings(reviews[i].organization, _organization)) {
+            if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
                 matchCount++;
             }
         }
@@ -180,7 +199,7 @@ contract PayMePrettyPlease {
 
         // Fill the array with matching reviews
         for (uint256 i = 0; i < reviewCount; i++) {
-            if (compareStrings(reviews[i].organization, _organization)) {
+            if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
                 sponsorReviews[index] = reviews[i];
                 index++;
             }
