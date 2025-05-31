@@ -1,6 +1,32 @@
 export const abi = [
   {
     type: "function",
+    name: "getAllOrganizations",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "tuple[]",
+        internalType: "struct PayMePrettyPlease.Organization[]",
+        components: [
+          { name: "name", type: "string", internalType: "string" },
+          { name: "totalPayoutTime", type: "uint256", internalType: "uint256" },
+          { name: "totalReviews", type: "uint256", internalType: "uint256" },
+          { name: "totalRating", type: "uint256", internalType: "uint256" },
+          {
+            name: "lastReviewTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          { name: "pendingPayouts", type: "uint256", internalType: "uint256" },
+          { name: "paidOutReviews", type: "uint256", internalType: "uint256" },
+        ],
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "getAllReviewsFromSponsor",
     inputs: [{ name: "_sponsor", type: "string", internalType: "string" }],
     outputs: [
@@ -48,6 +74,13 @@ export const abi = [
   },
   {
     type: "function",
+    name: "getOrganizationNames",
+    inputs: [],
+    outputs: [{ name: "", type: "string[]", internalType: "string[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "getReview",
     inputs: [{ name: "_reviewId", type: "uint256", internalType: "uint256" }],
     outputs: [
@@ -91,6 +124,13 @@ export const abi = [
     inputs: [{ name: "_reviewId", type: "uint256", internalType: "uint256" }],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "organizationNames",
+    inputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "view",
   },
   {
     type: "function",

@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,57 +13,59 @@ import {
 import { Header } from "@/components/header";
 import Link from "next/link";
 import { SubmitReportButton } from "@/components/submit-report-button";
-
-const companies = [
-  {
-    name: "ETHGlobal",
-    avgPayoutTime: "7 days",
-    rating: 4.8,
-    reviewCount: 156,
-    lastReview: "2 days ago",
-    status: "good",
-  },
-  {
-    name: "TreeHacks",
-    avgPayoutTime: "240 days",
-    rating: 1.2,
-    reviewCount: 43,
-    lastReview: "1 week ago",
-    status: "bad",
-  },
-  {
-    name: "ETHDenver",
-    avgPayoutTime: "90 days",
-    rating: 2.1,
-    reviewCount: 78,
-    lastReview: "3 days ago",
-    status: "bad",
-  },
-  {
-    name: "HackMIT",
-    avgPayoutTime: "14 days",
-    rating: 4.2,
-    reviewCount: 89,
-    lastReview: "5 days ago",
-    status: "good",
-  },
-  {
-    name: "PennApps",
-    avgPayoutTime: "21 days",
-    rating: 3.8,
-    reviewCount: 67,
-    lastReview: "1 day ago",
-    status: "neutral",
-  },
-  {
-    name: "CalHacks",
-    avgPayoutTime: "180 days",
-    rating: 1.8,
-    reviewCount: 34,
-    lastReview: "4 days ago",
-    status: "bad",
-  },
-];
+import { useChainId, useReadContract } from "wagmi";
+import config from "../config";
+import { abi } from "../abi";
+// const companies = [
+//   {
+//     name: "ETHGlobal",
+//     avgPayoutTime: "7 days",
+//     rating: 4.8,
+//     reviewCount: 156,
+//     lastReview: "2 days ago",
+//     status: "good",
+//   },
+//   {
+//     name: "TreeHacks",
+//     avgPayoutTime: "240 days",
+//     rating: 1.2,
+//     reviewCount: 43,
+//     lastReview: "1 week ago",
+//     status: "bad",
+//   },
+//   {
+//     name: "ETHDenver",
+//     avgPayoutTime: "90 days",
+//     rating: 2.1,
+//     reviewCount: 78,
+//     lastReview: "3 days ago",
+//     status: "bad",
+//   },
+//   {
+//     name: "HackMIT",
+//     avgPayoutTime: "14 days",
+//     rating: 4.2,
+//     reviewCount: 89,
+//     lastReview: "5 days ago",
+//     status: "good",
+//   },
+//   {
+//     name: "PennApps",
+//     avgPayoutTime: "21 days",
+//     rating: 3.8,
+//     reviewCount: 67,
+//     lastReview: "1 day ago",
+//     status: "neutral",
+//   },
+//   {
+//     name: "CalHacks",
+//     avgPayoutTime: "180 days",
+//     rating: 1.8,
+//     reviewCount: 34,
+//     lastReview: "4 days ago",
+//     status: "bad",
+//   },
+// ];
 
 const recentReviews = [
   {
@@ -98,6 +101,12 @@ const bestCompanies = [
 ];
 
 export default function AppPage() {
+  const chainId = useChainId();
+  const companies = useReadContract({
+    abi,
+    address: config[chainId].address,
+    functionName: "organizations",
+  });
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

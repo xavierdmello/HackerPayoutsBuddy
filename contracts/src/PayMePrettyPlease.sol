@@ -27,6 +27,7 @@ contract PayMePrettyPlease {
     // State variables
     mapping(uint256 => Review) public reviews;
     mapping(string => Organization) public organizations;
+    string[] public organizationNames; // Array to track organization names
     uint256 public reviewCount;
 
     // Events
@@ -45,12 +46,14 @@ contract PayMePrettyPlease {
     ) public {
         require(_rating >= 1 && _rating <= 5, "Rating must be between 1 and 5");
       
-
-        
         uint256 reviewId = reviewCount++;
         
         // Update organization stats
         Organization storage org = organizations[_sponsor];
+        if (org.totalReviews == 0) {
+            // New organization, add to names array
+            organizationNames.push(_sponsor);
+        }
         org.name = _sponsor;
         org.totalReviews++;
         org.totalRating += _rating;
@@ -162,5 +165,19 @@ contract PayMePrettyPlease {
         }
         
         return sponsorReviews;
+    }
+
+    // New function to get all organizations
+    function getAllOrganizations() public view returns (Organization[] memory) {
+        Organization[] memory orgs = new Organization[](organizationNames.length);
+        for (uint256 i = 0; i < organizationNames.length; i++) {
+            orgs[i] = organizations[organizationNames[i]];
+        }
+        return orgs;
+    }
+
+    // New function to get organization names
+    function getOrganizationNames() public view returns (string[] memory) {
+        return organizationNames;
     }
 }
