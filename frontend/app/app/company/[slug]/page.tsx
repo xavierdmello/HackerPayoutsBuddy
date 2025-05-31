@@ -113,9 +113,11 @@ export default function CompanyPage({
       : null;
 
     return {
-      id: review.sponsor,
+      id: review.organization,
       rating: Number(review.rating),
+      title: review.title,
       comment: review.comment,
+      eventName: review.eventName,
       evidence:
         review.evidenceHashes.length > 0
           ? "Evidence provided"

@@ -13,9 +13,11 @@ contract PayMePrettyPlease {
     }
 
     struct Review {
-        string sponsor;
-        uint8 rating;
+        string organization;
+        string eventName;
+        string title;
         string comment;
+        uint8 rating;
         string[] evidenceHashes;
         uint256 prizeAmount;
         bool prizePaidOut;
@@ -31,13 +33,15 @@ contract PayMePrettyPlease {
     uint256 public reviewCount;
 
     // Events
-    event ReviewSubmitted(uint256 indexed reviewId, address indexed reviewer, string sponsor);
-    event PrizePaidOut(uint256 indexed reviewId, string sponsor, uint256 payoutTime);
+    event ReviewSubmitted(uint256 indexed reviewId, address indexed reviewer, string organization, string eventName);
+    event PrizePaidOut(uint256 indexed reviewId, string organization, uint256 payoutTime);
 
     function submitReview(
-        string memory _sponsor,
-        uint8 _rating,
+        string memory _organization,
+        string memory _eventName,
+        string memory _title,
         string memory _comment,
+        uint8 _rating,
         string[] memory _evidenceHashes,
         uint256 _prizeAmount,
         uint256 _hackathonEndDate,
@@ -49,12 +53,12 @@ contract PayMePrettyPlease {
         uint256 reviewId = reviewCount++;
         
         // Update organization stats
-        Organization storage org = organizations[_sponsor];
+        Organization storage org = organizations[_organization];
         if (org.totalReviews == 0) {
             // New organization, add to names array
-            organizationNames.push(_sponsor);
+            organizationNames.push(_organization);
         }
-        org.name = _sponsor;
+        org.name = _organization;
         org.totalReviews++;
         org.totalRating += _rating;
         org.lastReviewTimestamp = block.timestamp;
@@ -67,9 +71,11 @@ contract PayMePrettyPlease {
         }
         
         reviews[reviewId] = Review({
-            sponsor: _sponsor,
-            rating: _rating,
+            organization: _organization,
+            eventName: _eventName,
+            title: _title,
             comment: _comment,
+            rating: _rating,
             evidenceHashes: _evidenceHashes,
             prizeAmount: _prizeAmount,
             prizePaidOut: _isAlreadyPaidOut,
@@ -78,7 +84,7 @@ contract PayMePrettyPlease {
             reviewer: msg.sender
         });
 
-        emit ReviewSubmitted(reviewId, msg.sender, _sponsor);
+        emit ReviewSubmitted(reviewId, msg.sender, _organization, _eventName);
     }
 
     function markPrizePaidOut(uint256 _reviewId) public {
@@ -90,7 +96,7 @@ contract PayMePrettyPlease {
         uint256 payoutTime = currentTimestamp - review.hackathonEndDate;
         
         // Update organization stats
-        Organization storage org = organizations[review.sponsor];
+        Organization storage org = organizations[review.organization];
         org.totalPayoutTime += payoutTime;
         org.pendingPayouts--;
         org.paidOutReviews++;
@@ -99,7 +105,7 @@ contract PayMePrettyPlease {
         review.prizePaidOut = true;
         review.payoutDate = currentTimestamp;
 
-        emit PrizePaidOut(_reviewId, review.sponsor, payoutTime);
+        emit PrizePaidOut(_reviewId, review.organization, payoutTime);
     }
 
     // View functions
@@ -108,7 +114,7 @@ contract PayMePrettyPlease {
         return reviews[_reviewId];
     }
 
-    function getOrganization(string memory _sponsor) public view returns (
+    function getOrganization(string memory _organization) public view returns (
         string memory name,
         uint256 avgPayoutTime,
         uint256 rating,
@@ -117,7 +123,7 @@ contract PayMePrettyPlease {
         uint256 pendingPayouts,
         uint256 paidOutReviews
     ) {
-        Organization storage org = organizations[_sponsor];
+        Organization storage org = organizations[_organization];
         return (
             org.name,
             org.paidOutReviews > 0 ? org.totalPayoutTime / org.paidOutReviews : 0,
@@ -130,12 +136,12 @@ contract PayMePrettyPlease {
     }
 
     //maybe unused
-    function getReviewsBySponsor(string memory _sponsor) public view returns (uint256[] memory) {
+    function getReviewsBySponsor(string memory _organization) public view returns (uint256[] memory) {
         uint256[] memory sponsorReviews = new uint256[](reviewCount);
         uint256 count = 0;
         
         for (uint256 i = 0; i < reviewCount; i++) {
-            if (keccak256(bytes(reviews[i].sponsor)) == keccak256(bytes(_sponsor))) {
+            if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
                 sponsorReviews[count] = i;
                 count++;
             }
@@ -148,10 +154,10 @@ contract PayMePrettyPlease {
         return sponsorReviews;
     }
 
-    function getAllReviewsFromSponsor(string memory _sponsor) public view returns (Review[] memory) {
+    function getAllReviewsFromSponsor(string memory _organization) public view returns (Review[] memory) {
         uint256 count = 0;
         for (uint256 i = 0; i < reviewCount; i++) {
-            if (keccak256(bytes(reviews[i].sponsor)) == keccak256(bytes(_sponsor))) {
+            if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
                 count++;
             }
         }
@@ -159,7 +165,7 @@ contract PayMePrettyPlease {
         Review[] memory sponsorReviews = new Review[](count);
         uint256 index = 0;
         for (uint256 i = 0; i < reviewCount; i++) {
-            if (keccak256(bytes(reviews[i].sponsor)) == keccak256(bytes(_sponsor))) {
+            if (keccak256(bytes(reviews[i].organization)) == keccak256(bytes(_organization))) {
                 sponsorReviews[index] = reviews[i];
                 index++;
             }

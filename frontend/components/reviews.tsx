@@ -12,7 +12,9 @@ import {
 interface Review {
   id: string;
   rating: number;
+  title: string;
   comment: string;
+  eventName: string;
   evidence?: string;
   hasPhoto?: boolean;
   time?: string;
@@ -106,7 +108,15 @@ export function Reviews({
                 )}
               </div>
             </div>
-            <p className="text-sm text-gray-600 mb-2">{review.comment}</p>
+            <div className="mb-2">
+              <div className="text-sm font-medium text-gray-900 mb-1">
+                {review.eventName}
+              </div>
+              <div className="text-sm font-semibold text-gray-900 mb-1">
+                {review.title}
+              </div>
+              <p className="text-sm text-gray-600">{review.comment}</p>
+            </div>
             {showEvidence && review.evidence && (
               <div className="bg-gray-50 p-3 rounded-lg">
                 <p className="text-xs text-gray-600 font-medium mb-1">
