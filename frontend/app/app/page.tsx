@@ -16,99 +16,84 @@ import { SubmitReportButton } from "@/components/submit-report-button";
 import { useChainId, useReadContract } from "wagmi";
 import config from "../config";
 import { abi } from "../abi";
-const companies = [
-  {
-    name: "ETHGlobal",
-    avgPayoutTime: "7 days",
-    rating: 4.8,
-    reviewCount: 156,
-    lastReview: "2 days ago",
-    status: "good",
-  },
-  {
-    name: "TreeHacks",
-    avgPayoutTime: "240 days",
-    rating: 1.2,
-    reviewCount: 43,
-    lastReview: "1 week ago",
-    status: "bad",
-  },
-  {
-    name: "ETHDenver",
-    avgPayoutTime: "90 days",
-    rating: 2.1,
-    reviewCount: 78,
-    lastReview: "3 days ago",
-    status: "bad",
-  },
-  {
-    name: "HackMIT",
-    avgPayoutTime: "14 days",
-    rating: 4.2,
-    reviewCount: 89,
-    lastReview: "5 days ago",
-    status: "good",
-  },
-  {
-    name: "PennApps",
-    avgPayoutTime: "21 days",
-    rating: 3.8,
-    reviewCount: 67,
-    lastReview: "1 day ago",
-    status: "neutral",
-  },
-  {
-    name: "CalHacks",
-    avgPayoutTime: "180 days",
-    rating: 1.8,
-    reviewCount: 34,
-    lastReview: "4 days ago",
-    status: "bad",
-  },
-];
 
-const recentReviews = [
-  {
-    hackathon: "ETHGlobal NYC",
-    rating: 5,
-    comment: "Paid within 3 days, excellent communication",
-    time: "2h ago",
-  },
-  {
-    hackathon: "TreeHacks",
-    rating: 1,
-    comment: "Still waiting after 8 months, no response",
-    time: "4h ago",
-  },
-  {
-    hackathon: "HackMIT",
-    rating: 4,
-    comment: "Took 2 weeks but they kept us updated",
-    time: "6h ago",
-  },
-];
+// Helper function to format timestamp to relative time
+const formatRelativeTime = (timestamp: bigint) => {
+  const now = BigInt(Math.floor(Date.now() / 1000));
+  const diff = now - timestamp;
+  const days = Number(diff) / (24 * 60 * 60);
 
-const worstOffenders = [
-  { name: "TreeHacks", avgDelay: "240 days", rating: 1.2 },
-  { name: "CalHacks", avgDelay: "180 days", rating: 1.8 },
-  { name: "ETHDenver", avgDelay: "90 days", rating: 2.1 },
-];
+  if (days < 1) return "today";
+  if (days < 2) return "yesterday";
+  if (days < 7) return `${Math.floor(days)} days ago`;
+  if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
+  return `${Math.floor(days / 30)} months ago`;
+};
 
-const bestCompanies = [
-  { name: "ETHGlobal", avgPayout: "7 days", rating: 4.8 },
-  { name: "HackMIT", avgPayout: "14 days", rating: 4.2 },
-  { name: "PennApps", avgPayout: "21 days", rating: 3.8 },
-];
+// Helper function to calculate average payout time
+const calculateAvgPayoutTime = (
+  totalPayoutTime: bigint,
+  paidOutReviews: bigint
+) => {
+  if (paidOutReviews === 0n) return "No payouts yet";
+  const avgDays =
+    Number(totalPayoutTime) / (Number(paidOutReviews) * 24 * 60 * 60);
+  return `${Math.round(avgDays)} days`;
+};
+
+// Helper function to calculate rating
+const calculateRating = (totalRating: bigint, totalReviews: bigint) => {
+  if (totalReviews === 0n) return 0;
+  return Number(totalRating) / Number(totalReviews);
+};
 
 export default function AppPage() {
   const chainId = useChainId();
-  const { data: companies2 } = useReadContract({
+  const { data: companiesData } = useReadContract({
     abi,
     address: config[chainId].address,
     functionName: "getAllOrganizations",
   });
-  console.log("MEEP");
-  console.log(companies2);
+
+  const companies =
+    companiesData?.map((company: any) => ({
+      name: company.name,
+      avgPayoutTime: calculateAvgPayoutTime(
+        company.totalPayoutTime,
+        company.paidOutReviews
+      ),
+      rating: calculateRating(company.totalRating, company.totalReviews),
+      reviewCount: Number(company.totalReviews),
+      lastReview: formatRelativeTime(company.lastReviewTimestamp),
+      status: company.pendingPayouts > 0n ? "bad" : "good",
+    })) || [];
+
+  // Sort companies by rating for best/worst lists
+  const sortedCompanies = [...companies].sort((a, b) => b.rating - a.rating);
+  const bestCompanies = sortedCompanies.slice(0, 3);
+  const worstOffenders = [...sortedCompanies].reverse().slice(0, 3);
+
+  // Get recent reviews (we'll need to implement this with real data later)
+  const recentReviews = [
+    {
+      hackathon: "ETHGlobal NYC",
+      rating: 5,
+      comment: "Paid within 3 days, excellent communication",
+      time: "2h ago",
+    },
+    {
+      hackathon: "TreeHacks",
+      rating: 1,
+      comment: "Still waiting after 8 months, no response",
+      time: "4h ago",
+    },
+    {
+      hackathon: "HackMIT",
+      rating: 4,
+      comment: "Took 2 weeks but they kept us updated",
+      time: "6h ago",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -287,7 +272,7 @@ export default function AppPage() {
                         {company.name}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {company.avgDelay} avg
+                        {company.avgPayoutTime} avg
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
@@ -320,7 +305,7 @@ export default function AppPage() {
                         {company.name}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {company.avgPayout} avg
+                        {company.avgPayoutTime} avg
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
