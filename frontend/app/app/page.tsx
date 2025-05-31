@@ -16,6 +16,7 @@ import { SubmitReportButton } from "@/components/submit-report-button";
 import { useChainId, useReadContract } from "wagmi";
 import config from "../config";
 import { abi } from "../abi";
+import { useState } from "react";
 
 // Helper function to format timestamp to relative time
 const formatRelativeTime = (timestamp: bigint) => {
@@ -49,6 +50,7 @@ const calculateRating = (totalRating: bigint, totalReviews: bigint) => {
 
 export default function AppPage() {
   const chainId = useChainId();
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: companiesData } = useReadContract({
     abi,
     address: config[chainId].address,
@@ -68,8 +70,15 @@ export default function AppPage() {
       status: company.pendingPayouts > 0n ? "bad" : "good",
     })) || [];
 
+  // Filter companies based on search query
+  const filteredCompanies = companies.filter((company) =>
+    company.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // Sort companies by rating for best/worst lists
-  const sortedCompanies = [...companies].sort((a, b) => b.rating - a.rating);
+  const sortedCompanies = [...filteredCompanies].sort(
+    (a, b) => b.rating - a.rating
+  );
   const bestCompanies = sortedCompanies.slice(0, 3);
   const worstOffenders = [...sortedCompanies].reverse().slice(0, 3);
 
@@ -112,6 +121,8 @@ export default function AppPage() {
                     <Input
                       placeholder="Search hackathons..."
                       className="pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
                   <SubmitReportButton />
@@ -153,62 +164,68 @@ export default function AppPage() {
                 </div>
 
                 <div className="divide-y divide-gray-100">
-                  {companies.map((company, index) => (
-                    <Link
-                      key={index}
-                      href={`/app/company/${company.name
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}`}
-                      className="block hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 flex-1">
-                            <div className="flex-1">
-                              <div className="font-medium text-gray-900 hover:text-blue-600 transition-colors">
-                                {company.name}
+                  {filteredCompanies.length > 0 ? (
+                    filteredCompanies.map((company, index) => (
+                      <Link
+                        key={index}
+                        href={`/app/company/${company.name
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                        className="block hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4 flex-1">
+                              <div className="flex-1">
+                                <div className="font-medium text-gray-900 hover:text-blue-600 transition-colors">
+                                  {company.name}
+                                </div>
                               </div>
-                            </div>
 
-                            <div className="text-sm text-gray-600 w-32">
-                              {company.avgPayoutTime}
-                            </div>
+                              <div className="text-sm text-gray-600 w-32">
+                                {company.avgPayoutTime}
+                              </div>
 
-                            <div className="flex items-center space-x-1 w-20">
-                              <Star
-                                className={`w-4 h-4 ${
-                                  company.rating >= 4
-                                    ? "fill-green-500 text-green-500"
-                                    : company.rating >= 3
-                                    ? "fill-yellow-500 text-yellow-500"
-                                    : "fill-red-500 text-red-500"
-                                }`}
-                              />
-                              <span
-                                className={`text-sm font-medium ${
-                                  company.rating >= 4
-                                    ? "text-green-600"
-                                    : company.rating >= 3
-                                    ? "text-yellow-600"
-                                    : "text-red-600"
-                                }`}
-                              >
-                                {company.rating}
-                              </span>
-                            </div>
+                              <div className="flex items-center space-x-1 w-20">
+                                <Star
+                                  className={`w-4 h-4 ${
+                                    company.rating >= 4
+                                      ? "fill-green-500 text-green-500"
+                                      : company.rating >= 3
+                                      ? "fill-yellow-500 text-yellow-500"
+                                      : "fill-red-500 text-red-500"
+                                  }`}
+                                />
+                                <span
+                                  className={`text-sm font-medium ${
+                                    company.rating >= 4
+                                      ? "text-green-600"
+                                      : company.rating >= 3
+                                      ? "text-yellow-600"
+                                      : "text-red-600"
+                                  }`}
+                                >
+                                  {company.rating}
+                                </span>
+                              </div>
 
-                            <div className="text-sm text-gray-500 w-20">
-                              {company.reviewCount} reviews
-                            </div>
+                              <div className="text-sm text-gray-500 w-20">
+                                {company.reviewCount} reviews
+                              </div>
 
-                            <div className="text-sm text-gray-500 w-24">
-                              {company.lastReview}
+                              <div className="text-sm text-gray-500 w-24">
+                                {company.lastReview}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="p-8 text-center text-gray-500">
+                      No companies found matching "{searchQuery}"
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
