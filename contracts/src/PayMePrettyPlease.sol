@@ -35,6 +35,7 @@ contract PayMePrettyPlease {
     // Events
     event ReviewSubmitted(uint256 indexed reviewId, address indexed reviewer, string organization, string eventName);
     event PrizePaidOut(uint256 indexed reviewId, string organization, uint256 payoutTime);
+    event DebugOrganizationSearch(string organization, uint256 count);
 
     function submitReview(
         string memory _organization,
@@ -161,6 +162,8 @@ contract PayMePrettyPlease {
                 count++;
             }
         }
+
+        emit DebugOrganizationSearch(_organization, count);
 
         Review[] memory sponsorReviews = new Review[](count);
         uint256 index = 0;
