@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Star,
   MessageSquare,
@@ -8,9 +9,13 @@ import {
   AlertCircle,
   AlertTriangle,
 } from "lucide-react";
+import { useWriteContract } from "wagmi";
+import { abi } from "../app/abi";
+import config from "../app/config";
 
 interface Review {
   id: string;
+  globalIndex: number;
   rating: number;
   title: string;
   comment: string;
@@ -24,19 +29,33 @@ interface Review {
   prizeAmount?: number;
   prizePaidOut?: boolean;
   hackathonEndDate?: string;
+  reviewer?: string;
 }
 
 interface ReviewsProps {
   reviews: Review[];
   title?: string;
   showEvidence?: boolean;
+  isUserReviews?: boolean;
 }
 
 export function Reviews({
   reviews,
   title = "Anonymous Reviews",
   showEvidence = false,
+  isUserReviews = false,
 }: ReviewsProps) {
+  const { writeContract } = useWriteContract();
+
+  const handleConfirmPayout = (review: Review) => {
+    writeContract({
+      abi,
+      address: config[296].address as `0x${string}`,
+      functionName: "markPrizePaidOut",
+      args: [BigInt(review.globalIndex)],
+    });
+  };
+
   return (
     <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
       <CardHeader>
@@ -127,6 +146,16 @@ export function Reviews({
                 ) : (
                   <p className="text-xs text-gray-600">No images provided</p>
                 )}
+              </div>
+            )}
+            {isUserReviews && !review.prizePaidOut && (
+              <div className="mt-4 flex justify-end">
+                <Button
+                  onClick={() => handleConfirmPayout(review)}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Confirm Payout Received
+                </Button>
               </div>
             )}
           </div>

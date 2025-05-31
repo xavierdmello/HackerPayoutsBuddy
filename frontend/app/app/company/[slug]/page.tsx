@@ -130,6 +130,7 @@ export default function CompanyPage({
 
     return {
       id: `${review.organization}-${index}`,
+      globalIndex: index,
       rating: Number(review.rating),
       title: review.title,
       comment: review.comment,
@@ -261,6 +262,7 @@ export default function CompanyPage({
                 reviews={userReviews}
                 title="Your Anonymous Reviews"
                 showEvidence={true}
+                isUserReviews={true}
               />
             )}
 
