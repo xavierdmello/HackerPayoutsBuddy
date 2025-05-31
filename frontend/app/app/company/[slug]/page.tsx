@@ -252,7 +252,7 @@ export default function CompanyPage({
             {anonymousReviews.length > 0 ? (
               <Reviews
                 reviews={anonymousReviews}
-                title="Other Reviews"
+                title={userReviews.length > 0 ? "Other Reviews" : "Reviews"}
                 showEvidence={true}
               />
             ) : (
