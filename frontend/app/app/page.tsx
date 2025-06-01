@@ -59,6 +59,7 @@ export default function AppPage() {
         staleTime: 0,
     },
   });
+  // hi
 
   const { data: blockNumber } = useBlockNumber({
     chainId: chainId,
