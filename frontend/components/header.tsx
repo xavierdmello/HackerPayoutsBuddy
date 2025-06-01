@@ -16,7 +16,7 @@ export function Header() {
         <div className="flex-1 flex justify-center md:justify-start">
           <Link
             href="/"
-            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            className="flex items-center space-x-4 hover:opacity-80 transition-opacity"
           >
             <Image
               src="/icon.png"
