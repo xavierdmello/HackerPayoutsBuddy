@@ -101,30 +101,26 @@ contract PayMePrettyPlease {
     }
 
     function markPrizePaidOut(uint256 _reviewId) public {
-        // First check if review exists
-        require(_reviewId < reviewCount, "Review does not exist");
-        
-        // Then check if it's already paid out
-        require(!reviews[_reviewId].prizePaidOut, "Prize already paid out");
-        
-        // Then check if the caller is the reviewer
-        require(msg.sender == reviews[_reviewId].reviewer, "Only reviewer can mark as paid");
-        
-        uint256 currentTimestamp = block.timestamp;
-        uint256 payoutTime = currentTimestamp - reviews[_reviewId].hackathonEndDate;
-        
-        // Update organization stats
-        Organization storage org = organizations[reviews[_reviewId].organization];
-        org.totalPayoutTime += payoutTime;
+    require(_reviewId < reviewCount, "Review does not exist");
+    require(!reviews[_reviewId].prizePaidOut, "Prize already paid out");
+    
+    uint256 currentTimestamp = block.timestamp;
+    uint256 payoutTime = currentTimestamp - reviews[_reviewId].hackathonEndDate;
+    
+    // Update organization stats
+    Organization storage org = organizations[reviews[_reviewId].organization];
+    org.totalPayoutTime += payoutTime;
+    if (org.pendingPayouts > 0) {  // Add this check
         org.pendingPayouts--;
-        org.paidOutReviews++;
-        
-        // Update review
-        reviews[_reviewId].prizePaidOut = true;
-        reviews[_reviewId].payoutDate = currentTimestamp;
-
-        emit PrizePaidOut(_reviewId, reviews[_reviewId].organization, payoutTime);
     }
+    org.paidOutReviews++;
+    
+    // Update review
+    reviews[_reviewId].prizePaidOut = true;
+    reviews[_reviewId].payoutDate = currentTimestamp;
+
+    emit PrizePaidOut(_reviewId, reviews[_reviewId].organization, payoutTime);
+}
 
     // View functions
     function getReview(uint256 _reviewId) public view returns (Review memory) {

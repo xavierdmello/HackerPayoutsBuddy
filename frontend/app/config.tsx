@@ -8,7 +8,7 @@ type PayMePrettyPleaseConfig = {
 
 const config: PayMePrettyPleaseConfig = {
   [hederaTestnet.id]: {
-    address: "0x21beaa0bf914f074217f6bc0fed4de7eba641a08",
+    address: "0x6aaefea0249b7a04af44a3e7810aef7f82822dab",
   },
 };
 
