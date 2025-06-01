@@ -101,9 +101,14 @@ contract PayMePrettyPlease {
     }
 
     function markPrizePaidOut(uint256 _reviewId) public {
+        // First check if review exists
         require(_reviewId < reviewCount, "Review does not exist");
-
+        
+        // Then check if it's already paid out
         require(!reviews[_reviewId].prizePaidOut, "Prize already paid out");
+        
+        // Then check if the caller is the reviewer
+        require(msg.sender == reviews[_reviewId].reviewer, "Only reviewer can mark as paid");
         
         uint256 currentTimestamp = block.timestamp;
         uint256 payoutTime = currentTimestamp - reviews[_reviewId].hackathonEndDate;

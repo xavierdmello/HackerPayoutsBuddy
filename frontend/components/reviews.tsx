@@ -52,7 +52,7 @@ export function Reviews({
       abi,
       address: config[296].address as `0x${string}`,
       functionName: "markPrizePaidOut",
-      args: [BigInt(0)],
+      args: [BigInt(reviewId)],
     });
   };
 
