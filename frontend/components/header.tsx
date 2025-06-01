@@ -19,7 +19,7 @@ export function Header() {
           >
             <span className="text-2xl">🙏</span>
             <span className="text-xl font-medium text-gray-900">
-              PayMePrettyPlease
+              HackerPayoutsBuddy
             </span>
           </Link>
         </div>
