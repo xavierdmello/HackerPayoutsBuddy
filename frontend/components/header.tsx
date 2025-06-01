@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export function Header() {
   const pathname = usePathname();
@@ -17,10 +18,14 @@ export function Header() {
             href="/"
             className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
           >
-            <span className="text-2xl">🙏</span>
-            <span className="text-xl font-medium text-gray-900">
-              HackerPayoutsBuddy
-            </span>
+            <Image
+              src="/logo.png"
+              alt="HackerPayoutsBuddy Logo"
+              width={200}
+              height={40}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
         </div>
 
