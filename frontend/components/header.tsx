@@ -19,6 +19,14 @@ export function Header() {
             className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
           >
             <Image
+              src="/icon.png"
+              alt="HackerPayoutsBuddy Icon"
+              width={40}
+              height={40}
+              className="h-10 w-10"
+              priority
+            />
+            <Image
               src="/logo.png"
               alt="HackerPayoutsBuddy Logo"
               width={200}
