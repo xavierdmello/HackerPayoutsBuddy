@@ -90,6 +90,32 @@ const formatDate = (timestamp: bigint) => {
   });
 };
 
+// Helper function to round prize amount to range
+const formatPrizeRange = (amount: number) => {
+  if (amount === 0) return "$0";
+  if (amount <= 100) return "$10+";
+  if (amount <= 500) return "$100+";
+  if (amount <= 2500) return "$1,000+";
+  if (amount <= 7500) return "$5,000+";
+  return "$10,000+";
+};
+
+// Helper function to calculate total pending and paid amounts
+const calculateTotalAmounts = (reviews: any[]) => {
+  return reviews.reduce(
+    (acc, review) => {
+      const amount = Number(review.prizeAmount);
+      if (review.prizePaidOut) {
+        acc.paidAmount += amount;
+      } else {
+        acc.pendingAmount += amount;
+      }
+      return acc;
+    },
+    { pendingAmount: 0, paidAmount: 0 }
+  );
+};
+
 export default function CompanyPage({
   params,
 }: {
@@ -381,7 +407,17 @@ export default function CompanyPage({
                     <div className="text-lg font-semibold text-gray-900">
                       {Number(pendingPayouts)}
                     </div>
-                    <div className="text-sm text-gray-500">Pending Payouts</div>
+                    <div className="text-sm text-gray-500">
+                      Pending Payouts
+                      {reviews.length > 0 && (
+                        <div className="text-base font-semibold text-orange-500 mt-1">
+                          {Math.floor(
+                            calculateTotalAmounts(reviews).pendingAmount
+                          ).toLocaleString()}
+                          $+ pending
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
@@ -389,7 +425,17 @@ export default function CompanyPage({
                     <div className="text-lg font-semibold text-gray-900">
                       {Number(totalReviews)}
                     </div>
-                    <div className="text-sm text-gray-500">Total Reviews</div>
+                    <div className="text-sm text-gray-500">
+                      Total Reviews
+                      {reviews.length > 0 && (
+                        <div className="text-base font-semibold text-green-500 mt-1">
+                          {Math.floor(
+                            calculateTotalAmounts(reviews).paidAmount
+                          ).toLocaleString()}
+                          $+ paid
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>

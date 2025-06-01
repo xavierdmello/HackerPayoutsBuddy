@@ -9,11 +9,22 @@ import {
   Clock,
   AlertCircle,
   AlertTriangle,
+  DollarSign,
 } from "lucide-react";
 import { useWriteContract } from "wagmi";
 import { abi } from "../app/abi";
 import config from "../app/config";
 import { useChainId } from "wagmi";
+
+// Helper function to round prize amount to range
+const formatPrizeRange = (amount: number) => {
+  if (amount === 0) return "$0";
+  if (amount <= 100) return "10$+";
+  if (amount <= 500) return "100$+";
+  if (amount <= 2500) return "1000$+";
+  if (amount <= 7500) return "5000$+";
+  return "10000$+";
+};
 
 interface Review {
   id: string;
@@ -201,6 +212,14 @@ export function Reviews({
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                       Verified by Flare
                     </div>
+                  </div>
+                )}
+                {review.prizeAmount > 0 && (
+                  <div className="flex items-center space-x-1 text-gray-500">
+                    <DollarSign className="w-4 h-4" />
+                    <span className="text-sm">
+                      {formatPrizeRange(review.prizeAmount)}
+                    </span>
                   </div>
                 )}
               </div>
