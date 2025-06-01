@@ -166,6 +166,8 @@ export default function CompanyPage({
       prizeAmount: Number(review.prizeAmount),
       prizePaidOut: review.prizePaidOut,
       hackathonEndDate: formatDate(review.hackathonEndDate),
+      hackathonEndDateTimestamp: Number(review.hackathonEndDate),
+      payoutDate: Number(review.payoutDate),
       reviewer: review.reviewer,
     };
   });

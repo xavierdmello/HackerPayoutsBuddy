@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,8 @@ interface Review {
   prizeAmount?: number;
   prizePaidOut?: boolean;
   hackathonEndDate?: string;
+  payoutDate?: number;
+  hackathonEndDateTimestamp?: number;
   reviewer?: string;
 }
 
@@ -56,6 +59,44 @@ export function Reviews({
     });
   };
 
+  const calculatePayoutTime = (
+    payoutDate: number,
+    hackathonEndDate: number
+  ): { days: number; colorClass: string; icon: JSX.Element } => {
+    if (!payoutDate || !hackathonEndDate)
+      return {
+        days: 0,
+        colorClass: "text-gray-500",
+        icon: <Clock className="w-4 h-4 text-gray-500" />,
+      };
+
+    const days = Math.floor((payoutDate - hackathonEndDate) / (24 * 60 * 60));
+
+    // Define thresholds for different severity levels
+    if (days <= 14) {
+      // Within 2 weeks is good
+      return {
+        days,
+        colorClass: "text-green-600",
+        icon: <CheckCircle className="w-4 h-4 text-green-600" />,
+      };
+    } else if (days <= 30) {
+      // Within a month is concerning
+      return {
+        days,
+        colorClass: "text-amber-600",
+        icon: <AlertTriangle className="w-4 h-4 text-amber-600" />,
+      };
+    } else {
+      // More than a month is bad
+      return {
+        days,
+        colorClass: "text-red-600",
+        icon: <AlertCircle className="w-4 h-4 text-red-600" />,
+      };
+    }
+  };
+
   return (
     <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
       <CardHeader>
@@ -79,26 +120,58 @@ export function Reviews({
             className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="text-xs text-gray-500 mb-1 flex items-center justify-between">
-              <span>{review.eventName}</span>
-              {review.time && (
-                <div className="flex items-center space-x-1">
-                  {review.timeColorClass &&
-                    (review.timeColorClass.includes("blue") ? (
-                      <Clock className="w-4 h-4 text-blue-600" />
-                    ) : review.timeColorClass.includes("amber") ? (
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
-                    ) : review.timeColorClass.includes("red") ? (
-                      <AlertCircle className="w-4 h-4 text-red-600" />
-                    ) : null)}
-                  <div
-                    className={`text-sm font-bold ${
-                      review.timeColorClass || "text-gray-500"
-                    }`}
-                  >
-                    {review.time}
-                  </div>
-                </div>
-              )}
+              <div className="flex items-center space-x-2">
+                <span>{review.eventName}</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    review.prizePaidOut
+                      ? "bg-green-100 text-green-800"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  {review.prizePaidOut ? "Paid" : "Unpaid"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                {review.prizePaidOut ? (
+                  <>
+                    {(() => {
+                      const payoutInfo = calculatePayoutTime(
+                        review.payoutDate!,
+                        review.hackathonEndDateTimestamp!
+                      );
+                      return (
+                        <>
+                          {payoutInfo.icon}
+                          <div
+                            className={`text-sm font-bold ${payoutInfo.colorClass}`}
+                          >
+                            Took {payoutInfo.days} days to pay
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </>
+                ) : (
+                  <>
+                    {review.timeColorClass &&
+                      (review.timeColorClass.includes("blue") ? (
+                        <Clock className="w-4 h-4 text-blue-600" />
+                      ) : review.timeColorClass.includes("amber") ? (
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                      ) : review.timeColorClass.includes("red") ? (
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                      ) : null)}
+                    <div
+                      className={`text-sm font-bold ${
+                        review.timeColorClass || "text-gray-500"
+                      }`}
+                    >
+                      {review.time} (Unpaid)
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
