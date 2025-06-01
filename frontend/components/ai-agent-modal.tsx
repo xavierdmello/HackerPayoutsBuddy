@@ -72,12 +72,14 @@ export function AiAgentModal({
   prizePaidOut,
 }: AiAgentModalProps) {
   const { writeContract } = useWriteContract();
+  const chainId = useChainId();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [verificationFailed, setVerificationFailed] = useState(false);
   const [prizes, setPrizes] = useState<PrizeCard[]>([]);
   const [showMetamask, setShowMetamask] = useState(false);
-  const chainId = useChainId();
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
   useEffect(() => {
     if (!open) {
       // Reset state when modal closes
@@ -86,6 +88,7 @@ export function AiAgentModal({
       setVerificationFailed(false);
       setPrizes([]);
       setShowMetamask(false);
+      setHasSubmitted(false);
       return;
     }
 
@@ -170,18 +173,41 @@ export function AiAgentModal({
             setCurrentStep(2);
             setIsLoading(false);
 
-            // Move to transaction step after showing prizes with random delay
+            // Move to transaction step after showing prizes
             setTimeout(() => {
               setIsLoading(true);
-              // Random delay between 2-4 seconds before moving to step 3
               setTimeout(() => {
                 setCurrentStep(3);
                 setIsLoading(true);
-                // Random delay between 1-3 seconds before showing metamask
+                // Random delay between 1-3 seconds before submitting transaction
                 setTimeout(() => {
-                  setShowMetamask(true);
+                  if (!hasSubmitted) {
+                    setHasSubmitted(true);
+                    writeContract({
+                      abi,
+                      address: config[chainId].address as `0x${string}`,
+                      functionName: "submitReview",
+                      args: [
+                        organization,
+                        hackathon,
+                        title,
+                        description,
+                        rating,
+                        [], // evidenceHashes - empty array for now
+                        BigInt(prizeAmount || "0"),
+                        endDate
+                          ? BigInt(new Date(endDate).getTime() / 1000)
+                          : BigInt(0),
+                        prizePaidOut,
+                        prizePaidOut
+                          ? BigInt(new Date().getTime() / 1000)
+                          : BigInt(0),
+                      ],
+                    });
+                  }
                   setIsLoading(false);
-                }, Math.random() * 2000 + 1000);
+                  setShowMetamask(true);
+                }, Math.random() * 2000 + 1000); // Random delay between 1-3 seconds
               }, Math.random() * 2000 + 2000);
             }, 2000);
           } else {
@@ -201,7 +227,21 @@ export function AiAgentModal({
     };
 
     verifyWithGemini();
-  }, [open, screenshots]);
+  }, [
+    open,
+    screenshots,
+    organization,
+    hackathon,
+    title,
+    description,
+    rating,
+    prizeAmount,
+    endDate,
+    prizePaidOut,
+    chainId,
+    writeContract,
+    hasSubmitted,
+  ]);
 
   const handleClose = () => {
     onClose();
@@ -288,30 +328,12 @@ export function AiAgentModal({
                     </div>
                   )}
 
-                  {/* Show metamask button in step 3 */}
-                  {step.id === 3 &&
-                    showMetamask &&
-                    writeContract({
-                      abi,
-                      address: config[chainId].address as `0x${string}`,
-                      functionName: "submitReview",
-                      args: [
-                        organization,
-                        hackathon,
-                        title,
-                        description,
-                        rating,
-                        [], // evidenceHashes - empty array for now
-                        BigInt(prizeAmount || "0"),
-                        endDate
-                          ? BigInt(new Date(endDate).getTime() / 1000)
-                          : BigInt(0),
-                        prizePaidOut,
-                        prizePaidOut
-                          ? BigInt(new Date().getTime() / 1000)
-                          : BigInt(0),
-                      ],
-                    })}
+                  {/* Show metamask status in step 3 */}
+                  {step.id === 3 && showMetamask && (
+                    <div className="text-sm text-gray-500 mt-1">
+                      Please confirm the transaction in your wallet...
+                    </div>
+                  )}
                 </div>
               </div>
             );
