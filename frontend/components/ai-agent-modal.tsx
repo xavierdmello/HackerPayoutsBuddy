@@ -301,7 +301,7 @@ export function AiAgentModal({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-semibold">
-              Processing Report
+              Prize Verification Agent
             </DialogTitle>
           </DialogHeader>
 

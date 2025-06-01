@@ -173,36 +173,17 @@ export function SubmitReportModal({
 
   const handleAiAgentClose = () => {
     setAiAgentOpen(false);
-
-    // Submit the transaction when AI verification is complete
-    writeContract({
-      abi,
-      address: config[chainid].address as `0x${string}`,
-      functionName: "submitReview",
-      args: [
-        organization,
-        hackathon,
-        title,
-        description,
-        rating,
-        [], // evidenceHashes - empty array for now
-        BigInt(prizeAmount || "0"),
-        endDate
-          ? BigInt(Math.floor(new Date(endDate).getTime() / 1000))
-          : BigInt(0),
-        prizePaidOut,
-        prizePaidOut && payoutDate
-          ? BigInt(Math.floor(new Date(payoutDate).getTime() / 1000))
-          : BigInt(0),
-      ],
-    });
-
     // Reset form state
     setRating(0);
     setOrganization("");
     setHackathon("");
-    setScreenshots([]);
+    setTitle("");
+    setDescription("");
+    setPrizeAmount("");
+    setEndDate("");
+    setPayoutDate("");
     setPrizePaidOut(false);
+    setScreenshots([]);
     setShowOrgSuggestions(false);
     setShowHackathonSuggestions(false);
   };
