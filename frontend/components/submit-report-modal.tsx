@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useWriteContract } from "wagmi";
+import { useChainId, useWriteContract } from "wagmi";
 import { abi } from "../app/abi";
 import config from "../app/config";
 import {
@@ -68,6 +68,7 @@ export function SubmitReportModal({
   const [hackathonSuggestions, setHackathonSuggestions] = useState<string[]>(
     []
   );
+  const chainid = useChainId();
   const [showOrgSuggestions, setShowOrgSuggestions] = useState(false);
   const [showHackathonSuggestions, setShowHackathonSuggestions] =
     useState(false);
@@ -411,7 +412,7 @@ export function SubmitReportModal({
                 onClick={() =>
                   writeContract({
                     abi,
-                    address: config[296].address as `0x${string}`,
+                    address: config[chainid].address as `0x${string}`,
                     functionName: "submitReview",
                     args: [
                       organization,

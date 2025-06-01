@@ -13,6 +13,7 @@ import {
 import { useWriteContract } from "wagmi";
 import { abi } from "../app/abi";
 import config from "../app/config";
+import { useChainId } from "wagmi";
 
 interface Review {
   id: string;
@@ -48,12 +49,12 @@ export function Reviews({
   isUserReviews = false,
 }: ReviewsProps) {
   const { writeContract } = useWriteContract();
-
+  const chainid = useChainId();
   const handleConfirmPayout = (reviewId: string) => {
     console.log("Review ID in handleConfirmPayout:", reviewId, typeof reviewId);
     writeContract({
       abi,
-      address: config[296].address as `0x${string}`,
+      address: config[chainid].address as `0x${string}`,
       functionName: "markPrizePaidOut",
       args: [BigInt(reviewId)],
     });
