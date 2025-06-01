@@ -16,6 +16,7 @@ const config: PayMePrettyPleaseConfig = {
   [flowMainnet.id]: {
     address: "0x8ef6655d01E8A51bE8C3De998d7729c0278f4d06",
   },
+  
 };
 
 export default config;
