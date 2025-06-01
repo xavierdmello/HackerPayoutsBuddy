@@ -16,6 +16,13 @@ import config from "@/app/config";
 import { abi } from "@/app/abi";
 import { use, useEffect } from "react";
 import { mainnet } from "wagmi/chains";
+import {
+  flowMainnet,
+  flowTestnet,
+  flareTestnet,
+  rootstockTestnet,
+  hederaTestnet,
+} from "wagmi/chains";
 
 interface Review {
   id: string;
@@ -114,6 +121,25 @@ const calculateTotalAmounts = (reviews: any[]) => {
     },
     { pendingAmount: 0, paidAmount: 0 }
   );
+};
+
+// Get etherscan base URL based on chain
+const getEtherscanBaseUrl = (txHash: `0x${string}`) => {
+  const chainId = useChainId();
+  switch (chainId) {
+    case flowMainnet.id:
+      return `https://www.flowscan.io/tx/${txHash}`;
+    case flowTestnet.id:
+      return `https://testnet.flowscan.io/tx/${txHash}`;
+    case flareTestnet.id:
+      return `https://testnet.flarescan.com/tx/${txHash}?chainid=114`;
+    case rootstockTestnet.id:
+      return `https://explorer.testnet.rootstock.io/tx/${txHash}`;
+    case hederaTestnet.id:
+      return `https://hashscan.io/testnet/transaction/${txHash}`;
+    default:
+      return `https://etherscan.io/tx/${txHash}`;
+  }
 };
 
 export default function CompanyPage({

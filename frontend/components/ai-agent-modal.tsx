@@ -14,6 +14,13 @@ import { abi } from "@/app/abi";
 import config from "../app/config";
 import ReactConfetti from "react-confetti";
 import { useWindowSize } from "react-use";
+import {
+  flowMainnet,
+  flowTestnet,
+  flareTestnet,
+  rootstockTestnet,
+  hederaTestnet,
+} from "wagmi/chains";
 
 interface AiAgentModalProps {
   open: boolean;
@@ -111,15 +118,20 @@ export function AiAgentModal({
 
   // Get etherscan base URL based on chain
   const getEtherscanBaseUrl = () => {
+    if (!txHash) return "";
     switch (chainId) {
-      case 1:
-        return "https://etherscan.io";
-      case 5:
-        return "https://goerli.etherscan.io";
-      case 11155111:
-        return "https://sepolia.etherscan.io";
+      case flowMainnet.id:
+        return `https://www.flowscan.io/tx/${txHash}`;
+      case flowTestnet.id:
+        return `https://testnet.flowscan.io/tx/${txHash}`;
+      case flareTestnet.id:
+        return `https://testnet.flarescan.com/tx/${txHash}?chainid=114`;
+      case rootstockTestnet.id:
+        return `https://explorer.testnet.rootstock.io/tx/${txHash}`;
+      case hederaTestnet.id:
+        return `https://hashscan.io/testnet/transaction/${txHash}`;
       default:
-        return "https://etherscan.io";
+        return `https://etherscan.io/tx/${txHash}`;
     }
   };
 
@@ -426,7 +438,7 @@ export function AiAgentModal({
                         ) : (
                           <div className="text-sm space-y-2">
                             <a
-                              href={`${getEtherscanBaseUrl()}/tx/${txHash}`}
+                              href={getEtherscanBaseUrl()}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:text-blue-800 underline"
