@@ -443,7 +443,11 @@ export function SubmitReportModal({
       </Dialog>
 
       {/* AI Agent Modal */}
-      <AiAgentModal open={aiAgentOpen} onClose={handleAiAgentClose} />
+      <AiAgentModal
+        open={aiAgentOpen}
+        onClose={handleAiAgentClose}
+        screenshots={screenshots}
+      />
     </>
   );
 }

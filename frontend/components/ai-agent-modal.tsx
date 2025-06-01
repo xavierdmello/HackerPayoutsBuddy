@@ -13,78 +13,175 @@ import { CheckCircle, Loader2 } from "lucide-react";
 interface AiAgentModalProps {
   open: boolean;
   onClose: () => void;
+  screenshots: File[];
 }
+
+const GEMINI_API_KEY = "AIzaSyDNytYifVmjUI52L2iqZS6x0vIDcejNJKs";
 
 const steps = [
   {
     id: 1,
-    title: "Submit Transaction",
+    title: "Anonymously Verifying Win",
     color: "bg-blue-500",
     textColor: "text-blue-600",
     bgColor: "bg-blue-50",
   },
   {
     id: 2,
-    title: "Verifying Win With Flare",
-    color: "bg-purple-500",
-    textColor: "text-purple-600",
-    bgColor: "bg-purple-50",
-  },
-  {
-    id: 3,
-    title: "Report submitted!",
+    title: "Prizes Verified",
     color: "bg-green-500",
     textColor: "text-green-600",
     bgColor: "bg-green-50",
   },
+  {
+    id: 3,
+    title: "Sending Transaction",
+    color: "bg-purple-500",
+    textColor: "text-purple-600",
+    bgColor: "bg-purple-50",
+  },
 ];
 
-export function AiAgentModal({ open, onClose }: AiAgentModalProps) {
+interface PrizeCard {
+  name: string;
+  amount: string;
+}
+
+export function AiAgentModal({
+  open,
+  onClose,
+  screenshots,
+}: AiAgentModalProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [verificationFailed, setVerificationFailed] = useState(false);
+  const [prizes, setPrizes] = useState<PrizeCard[]>([]);
+  const [showMetamask, setShowMetamask] = useState(false);
 
   useEffect(() => {
     if (!open) {
       // Reset state when modal closes
       setCurrentStep(1);
       setIsLoading(true);
+      setVerificationFailed(false);
+      setPrizes([]);
+      setShowMetamask(false);
       return;
     }
 
-    const processSteps = async () => {
-      // Step 1: Submit Transaction
-      setCurrentStep(1);
-      setIsLoading(true);
+    const verifyWithGemini = async () => {
+      try {
+        // Convert screenshots to base64
+        const imagePromises = screenshots.map(async (file) => {
+          return new Promise<{ data: string; mimeType: string }>(
+            (resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                if (typeof reader.result === "string") {
+                  // Extract base64 data without the prefix
+                  const base64Data = reader.result.split(",")[1];
+                  resolve({
+                    data: base64Data,
+                    mimeType: file.type || "image/jpeg",
+                  });
+                } else {
+                  reject(new Error("Failed to convert image to base64"));
+                }
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            }
+          );
+        });
 
-      // Random delay between 1-3 seconds
-      const delay1 = Math.random() * 2000 + 1000;
-      await new Promise((resolve) => setTimeout(resolve, delay1));
+        const base64Images = await Promise.all(imagePromises);
 
-      setIsLoading(false);
+        // Prepare the prompt for Gemini
+        const prompt = `You are a hackathon prize verification assistant. Please analyze these screenshots and:
+        1. Verify if they show hackathon prize wins (look for prize names, amounts, or winning notifications)
+        2. Extract the prize names and amounts if found
+        3. Return a JSON response in this format:
+        {
+          "prizesWon": boolean,
+          "prizes": [{"name": "string", "amount": "string"}]
+        }
+        Only return valid JSON, no other text.`;
 
-      // Brief pause to show completed step
-      await new Promise((resolve) => setTimeout(resolve, 500));
+        // Call Gemini API
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    ...base64Images.map((img) => ({
+                      inlineData: {
+                        data: img.data,
+                        mimeType: img.mimeType,
+                      },
+                    })),
+                  ],
+                },
+              ],
+            }),
+          }
+        );
 
-      // Step 2: Verifying Win With Flare
-      setCurrentStep(2);
-      setIsLoading(true);
+        const data = await response.json();
+        const responseText = data.candidates[0].content.parts[0].text;
 
-      // Random delay between 1-3 seconds
-      const delay2 = Math.random() * 2000 + 1000;
-      await new Promise((resolve) => setTimeout(resolve, delay2));
+        // Extract JSON from markdown if present
+        const jsonMatch = responseText.match(
+          /```(?:json)?\s*(\{[\s\S]*?\})\s*```/
+        );
+        const jsonStr = jsonMatch ? jsonMatch[1] : responseText;
 
-      setIsLoading(false);
+        try {
+          const result = JSON.parse(jsonStr);
 
-      // Brief pause to show completed step
-      await new Promise((resolve) => setTimeout(resolve, 500));
+          if (result.prizesWon) {
+            setPrizes(result.prizes);
+            setCurrentStep(2);
+            setIsLoading(false);
 
-      // Step 3: Report submitted!
-      setCurrentStep(3);
-      setIsLoading(false);
+            // Move to transaction step after showing prizes with random delay
+            setTimeout(() => {
+              setIsLoading(true);
+              // Random delay between 2-4 seconds before moving to step 3
+              setTimeout(() => {
+                setCurrentStep(3);
+                setIsLoading(true);
+                // Random delay between 1-3 seconds before showing metamask
+                setTimeout(() => {
+                  setShowMetamask(true);
+                  setIsLoading(false);
+                }, Math.random() * 2000 + 1000);
+              }, Math.random() * 2000 + 2000);
+            }, 2000);
+          } else {
+            setVerificationFailed(true);
+            setIsLoading(false);
+          }
+        } catch (error) {
+          console.error("Error parsing Gemini response:", error);
+          setVerificationFailed(true);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error verifying with Gemini:", error);
+        setVerificationFailed(true);
+        setIsLoading(false);
+      }
     };
 
-    processSteps();
-  }, [open]);
+    verifyWithGemini();
+  }, [open, screenshots]);
 
   const handleClose = () => {
     onClose();
@@ -151,18 +248,52 @@ export function AiAgentModal({ open, onClose }: AiAgentModalProps) {
                       Processing...
                     </div>
                   )}
+
+                  {/* Show prizes when verified */}
+                  {step.id === 2 && prizes.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      {prizes.map((prize, index) => (
+                        <div
+                          key={index}
+                          className="bg-white p-3 rounded-lg shadow-sm border border-green-100 flex justify-between items-center animate-fadeIn"
+                        >
+                          <span className="font-medium text-gray-800">
+                            {prize.name}
+                          </span>
+                          <span className="text-green-600 font-semibold">
+                            {prize.amount}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Show metamask button in step 3 */}
+                  {step.id === 3 && showMetamask && (
+                    <div className="mt-4">
+                      <Button
+                        onClick={handleClose}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        Connect Metamask
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Close Button - Only show when all steps are complete */}
-        {currentStep === 3 && !isLoading && (
-          <div className="flex justify-center pt-4">
+        {/* Show close button for verification failure */}
+        {verificationFailed && (
+          <div className="text-center space-y-4">
+            <p className="text-red-600">
+              No prizes found in the provided screenshots.
+            </p>
             <Button
               onClick={handleClose}
-              className="bg-green-600 hover:bg-green-700 text-white px-8"
+              className="bg-gray-600 hover:bg-gray-700 text-white px-8"
             >
               Close
             </Button>
