@@ -9,6 +9,8 @@ import {
   TrendingDown,
   TrendingUp,
   Plus,
+  Turtle,
+  Rabbit,
 } from "lucide-react";
 import { Header } from "@/components/header";
 import Link from "next/link";
@@ -56,7 +58,7 @@ export default function AppPage() {
     address: config[chainId].address,
     functionName: "getAllOrganizations",
     query: {
-        staleTime: 0,
+      staleTime: 0,
     },
   });
   // hi
@@ -64,7 +66,7 @@ export default function AppPage() {
   const { data: blockNumber } = useBlockNumber({
     chainId: chainId,
     watch: true, // Automatically update on new blocks
-  });//dhdg
+  }); //dhdg
 
   useEffect(() => {
     if (blockNumber) {
@@ -90,12 +92,17 @@ export default function AppPage() {
     company.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Sort companies by rating for best/worst lists
-  const sortedCompanies = [...filteredCompanies].sort(
-    (a, b) => b.rating - a.rating
-  );
-  const bestCompanies = sortedCompanies.slice(0, 3);
-  const worstOffenders = [...sortedCompanies].reverse().slice(0, 3);
+  // Sort companies by payout time for quickest/slowest lists
+  const sortedByPayoutTime = [...filteredCompanies].sort((a, b) => {
+    // Convert "X days" to number, handle "No payouts yet"
+    const getPayoutDays = (time: string) => {
+      if (time === "No payouts yet") return Infinity;
+      return parseInt(time.split(" ")[0]);
+    };
+    return getPayoutDays(a.avgPayoutTime) - getPayoutDays(b.avgPayoutTime);
+  });
+  const quickestPayers = sortedByPayoutTime.slice(0, 3);
+  const slowestPayers = [...sortedByPayoutTime].reverse().slice(0, 3);
 
   // Get recent reviews (we'll need to implement this with real data later)
   const recentReviews = [
@@ -286,16 +293,16 @@ export default function AppPage() {
               </CardContent>
             </Card>
 
-            {/* Worst Offenders */}
+            {/* Slowest Payers */}
             <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                  <TrendingDown className="w-5 h-5 mr-2 text-red-500" />
-                  Worst Offenders
+                  <Turtle className="w-5 h-5 mr-2 text-red-500" />
+                  Slowest Payouts
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {worstOffenders.map((company, index) => (
+                {slowestPayers.map((company, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between"
@@ -305,13 +312,12 @@ export default function AppPage() {
                         {company.name}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {company.avgPayoutTime} avg
+                        {company.avgPayoutTime}
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Star className="w-3 h-3 fill-red-500 text-red-500" />
                       <span className="text-sm text-red-600 font-medium">
-                        {company.rating}
+                        {company.avgPayoutTime}
                       </span>
                     </div>
                   </div>
@@ -319,16 +325,16 @@ export default function AppPage() {
               </CardContent>
             </Card>
 
-            {/* Best Companies */}
+            {/* Quickest Payers */}
             <Card className="bg-white border border-gray-200 shadow-sm rounded-xl">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                  <TrendingUp className="w-5 h-5 mr-2 text-green-500" />
-                  Best Companies
+                  <Rabbit className="w-5 h-5 mr-2 text-green-500" />
+                  Quickest Payouts
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {bestCompanies.map((company, index) => (
+                {quickestPayers.map((company, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between"
@@ -338,13 +344,12 @@ export default function AppPage() {
                         {company.name}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {company.avgPayoutTime} avg
+                        {company.avgPayoutTime}
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Star className="w-3 h-3 fill-green-500 text-green-500" />
                       <span className="text-sm text-green-600 font-medium">
-                        {company.rating}
+                        {company.avgPayoutTime}
                       </span>
                     </div>
                   </div>
