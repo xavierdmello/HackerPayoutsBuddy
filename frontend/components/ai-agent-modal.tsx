@@ -85,6 +85,7 @@ export function AiAgentModal({
   const [isLoading, setIsLoading] = useState(true);
   const [verificationFailed, setVerificationFailed] = useState(false);
   const [prizes, setPrizes] = useState<PrizeCard[]>([]);
+  const [visiblePrizes, setVisiblePrizes] = useState<number[]>([]);
   const [showMetamask, setShowMetamask] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -122,6 +123,60 @@ export function AiAgentModal({
     }
   };
 
+  // Function to reveal prizes sequentially
+  const revealPrizesSequentially = (prizes: PrizeCard[]) => {
+    setPrizes(prizes);
+    setVisiblePrizes([]);
+
+    prizes.forEach((_, index) => {
+      setTimeout(() => {
+        setVisiblePrizes((prev) => [...prev, index]);
+        // If this is the last prize, move to step 3 after a delay
+        if (index === prizes.length - 1) {
+          setTimeout(() => {
+            setCurrentStep(3);
+            setIsLoading(true);
+            // Random delay before showing metamask
+            setTimeout(async () => {
+              if (!hasSubmitted) {
+                setHasSubmitted(true);
+                try {
+                  await writeContract({
+                    abi,
+                    address: config[chainId].address as `0x${string}`,
+                    functionName: "submitReview",
+                    args: [
+                      organization,
+                      hackathon,
+                      title,
+                      description,
+                      rating,
+                      [], // evidenceHashes - empty array for now
+                      BigInt(prizeAmount || "0"),
+                      endDate
+                        ? BigInt(Math.floor(new Date(endDate).getTime() / 1000))
+                        : BigInt(0),
+                      prizePaidOut,
+                      prizePaidOut && payoutDate
+                        ? BigInt(
+                            Math.floor(new Date(payoutDate).getTime() / 1000)
+                          )
+                        : BigInt(0),
+                    ],
+                  });
+                } catch (error) {
+                  console.error("Error submitting transaction:", error);
+                }
+              }
+              setIsLoading(false);
+              setShowMetamask(true);
+            }, Math.random() * 2000 + 1000);
+          }, 1000);
+        }
+      }, index * 1000); // Show each prize 1 second apart
+    });
+  };
+
   useEffect(() => {
     if (!open) {
       // Reset state when modal closes
@@ -129,6 +184,7 @@ export function AiAgentModal({
       setIsLoading(true);
       setVerificationFailed(false);
       setPrizes([]);
+      setVisiblePrizes([]);
       setShowMetamask(false);
       setHasSubmitted(false);
       return;
@@ -211,58 +267,8 @@ export function AiAgentModal({
           const result = JSON.parse(jsonStr);
 
           if (result.prizesWon) {
-            setPrizes(result.prizes);
             setCurrentStep(2);
-            setIsLoading(false);
-
-            // Move to transaction step after showing prizes
-            setTimeout(() => {
-              setIsLoading(true);
-              setTimeout(() => {
-                setCurrentStep(3);
-                setIsLoading(true);
-                // Random delay between 1-3 seconds before submitting transaction
-                setTimeout(async () => {
-                  if (!hasSubmitted) {
-                    setHasSubmitted(true);
-                    try {
-                      await writeContract({
-                        abi,
-                        address: config[chainId].address as `0x${string}`,
-                        functionName: "submitReview",
-                        args: [
-                          organization,
-                          hackathon,
-                          title,
-                          description,
-                          rating,
-                          [], // evidenceHashes - empty array for now
-                          BigInt(prizeAmount || "0"),
-                          endDate
-                            ? BigInt(
-                                Math.floor(new Date(endDate).getTime() / 1000)
-                              )
-                            : BigInt(0),
-                          prizePaidOut,
-                          prizePaidOut && payoutDate
-                            ? BigInt(
-                                Math.floor(
-                                  new Date(payoutDate).getTime() / 1000
-                                )
-                              )
-                            : BigInt(0),
-                        ],
-                      });
-                    } catch (error) {
-                      console.error("Error submitting transaction:", error);
-                      // You might want to show an error message to the user here
-                    }
-                  }
-                  setIsLoading(false);
-                  setShowMetamask(true);
-                }, Math.random() * 2000 + 1000);
-              }, Math.random() * 2000 + 2000);
-            }, 2000);
+            revealPrizesSequentially(result.prizes);
           } else {
             setVerificationFailed(true);
             setIsLoading(false);
@@ -325,7 +331,10 @@ export function AiAgentModal({
                           : "bg-gray-200"
                       } ${isCurrentStep ? "scale-110" : "scale-100"}`}
                     >
-                      {(isCurrentStep && isLoading) ||
+                      {(isCurrentStep &&
+                        (isLoading ||
+                          (step.id === 2 &&
+                            visiblePrizes.length < prizes.length))) ||
                       (step.id === 3 && !txSuccess && showMetamask) ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
                       ) : isCompleted ? (
@@ -388,7 +397,11 @@ export function AiAgentModal({
                         {prizes.map((prize, index) => (
                           <div
                             key={index}
-                            className="bg-white p-3 rounded-lg shadow-sm border border-green-100 flex justify-between items-center animate-fadeIn"
+                            className={`bg-white p-3 rounded-lg shadow-sm border border-green-100 flex justify-between items-center transition-all duration-500 ${
+                              visiblePrizes.includes(index)
+                                ? "opacity-100 transform translate-y-0"
+                                : "opacity-0 transform translate-y-4"
+                            }`}
                           >
                             <span className="font-medium text-gray-800">
                               {prize.name}
