@@ -274,7 +274,8 @@ export function AiAgentModal({
         <div className="space-y-4 py-6">
           {steps.map((step) => {
             const isCurrentStep = step.id === currentStep;
-            const isCompleted = step.id < currentStep;
+            const isCompleted =
+              step.id < currentStep || (step.id === 3 && txSuccess);
             const isActive = step.id <= currentStep;
 
             return (
@@ -290,8 +291,11 @@ export function AiAgentModal({
                         : "bg-gray-200"
                     } ${isCurrentStep ? "scale-110" : "scale-100"}`}
                   >
-                    {isCurrentStep && isLoading ? (
+                    {(isCurrentStep && isLoading) ||
+                    (step.id === 3 && !txSuccess && showMetamask) ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : isCompleted ? (
+                      <CheckCircle className="w-5 h-5" />
                     ) : (
                       step.id
                     )}
@@ -310,7 +314,9 @@ export function AiAgentModal({
                         isActive ? step.textColor : "text-gray-500"
                       }`}
                     >
-                      {step.title}
+                      {step.id === 3 && txSuccess
+                        ? "Review Verified & Submitted!"
+                        : step.title}
                     </div>
                     {isCompleted && (
                       <CheckCircle
@@ -321,6 +327,24 @@ export function AiAgentModal({
                   {isCurrentStep && isLoading && (
                     <div className="text-sm text-gray-500 mt-1 animate-pulse">
                       Processing...
+                    </div>
+                  )}
+
+                  {/* Show screenshots in step 1 */}
+                  {step.id === 1 && screenshots.length > 0 && (
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      {screenshots.map((file, index) => (
+                        <div
+                          key={index}
+                          className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden"
+                        >
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Screenshot ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))}
                     </div>
                   )}
 
@@ -354,9 +378,6 @@ export function AiAgentModal({
                         </div>
                       ) : (
                         <div className="text-sm space-y-2">
-                          <div className="text-green-600">
-                            Transaction confirmed!
-                          </div>
                           <a
                             href={`${getEtherscanBaseUrl()}/tx/${txHash}`}
                             target="_blank"
@@ -375,14 +396,16 @@ export function AiAgentModal({
           })}
         </div>
 
-        {/* Show close button for verification failure */}
-        {verificationFailed && (
+        {/* Show close button for verification failure or completion */}
+        {(verificationFailed || txSuccess) && (
           <div className="text-center space-y-4">
-            <p className="text-red-600">
-              No prizes found in the provided screenshots.
-            </p>
+            {verificationFailed && (
+              <p className="text-red-600">
+                No prizes found in the provided screenshots.
+              </p>
+            )}
             <Button
-              onClick={handleClose}
+              onClick={onClose}
               className="bg-gray-600 hover:bg-gray-700 text-white px-8"
             >
               Close
