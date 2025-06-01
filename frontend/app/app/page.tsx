@@ -64,7 +64,7 @@ export default function AppPage() {
   const { data: blockNumber } = useBlockNumber({
     chainId: chainId,
     watch: true, // Automatically update on new blocks
-  });//d
+  });//dhdg
 
   useEffect(() => {
     if (blockNumber) {
