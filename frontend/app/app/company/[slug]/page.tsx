@@ -124,10 +124,9 @@ export default function CompanyPage({
     chainId: chainId,
     watch: true, // Automatically update on new blocks
   });
-   console.log("blockNumber", blockNumber);
+  console.log("blockNumber", blockNumber);
   useEffect(() => {
     if (blockNumber) {
-   
       refetchReviews(); // Trigger refetch on new block
       refetchCompany();
     }
@@ -148,6 +147,29 @@ export default function CompanyPage({
   console.log(companyData);
   if (!companyData || !reviewsData) {
     return <div>Loading...</div>;
+  }
+
+  if (company_name === "") {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-6 py-8 text-center">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            This organization does not exist on this network.
+          </h2>
+          <p className="text-gray-500">
+            Tip: Try changing the network in the top right corner.
+          </p>
+          <Link
+            href="/app"
+            className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Companies
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const [
