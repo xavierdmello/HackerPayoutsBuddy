@@ -145,8 +145,8 @@ export function AiAgentModal({
 
         // Prepare the prompt for Gemini
         const prompt = `You are a hackathon prize verification assistant. Please analyze these screenshots and:
-        1. Verify if they show hackathon prize wins (look for prize names, amounts, or winning notifications)
-        2. Extract the prize names and amounts if found
+        1. Verify if they show hackathon prize wins (look for prize names, or winning notifications)
+        2. Extract the prize names if found
         3. Return a JSON response in this format:
         {
           "prizesWon": boolean,
