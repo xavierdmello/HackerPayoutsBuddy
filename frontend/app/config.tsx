@@ -1,4 +1,4 @@
-import { flowMainnet, flowTestnet, hederaTestnet, hedera, rootstockTestnet, rootstock } from "wagmi/chains";
+import { flowMainnet, flowTestnet, hederaTestnet, hedera, rootstockTestnet, rootstock, flareTestnet } from "wagmi/chains";
 
 type PayMePrettyPleaseConfig = {
   [chainId: number]: {
@@ -17,6 +17,9 @@ const config: PayMePrettyPleaseConfig = {
     address: "0x8ef6655d01E8A51bE8C3De998d7729c0278f4d06",
   },
   [rootstockTestnet.id]: {
+    address: "0x8ef6655d01E8A51bE8C3De998d7729c0278f4d06",
+  },
+  [flareTestnet.id]: {
     address: "0x8ef6655d01E8A51bE8C3De998d7729c0278f4d06",
   },
 };
