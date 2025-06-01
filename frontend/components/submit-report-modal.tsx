@@ -187,9 +187,13 @@ export function SubmitReportModal({
         rating,
         [], // evidenceHashes - empty array for now
         BigInt(prizeAmount || "0"),
-        endDate ? BigInt(new Date(endDate).getTime() / 1000) : BigInt(0),
+        endDate
+          ? BigInt(Math.floor(new Date(endDate).getTime() / 1000))
+          : BigInt(0),
         prizePaidOut,
-        prizePaidOut ? BigInt(new Date().getTime() / 1000) : BigInt(0),
+        prizePaidOut && payoutDate
+          ? BigInt(Math.floor(new Date(payoutDate).getTime() / 1000))
+          : BigInt(0),
       ],
     });
 

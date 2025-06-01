@@ -12,6 +12,8 @@ import { CheckCircle, Loader2 } from "lucide-react";
 import { useChainId, useWriteContract, useTransaction } from "wagmi";
 import { abi } from "@/app/abi";
 import config from "../app/config";
+import ReactConfetti from "react-confetti";
+import { useWindowSize } from "react-use";
 
 interface AiAgentModalProps {
   open: boolean;
@@ -85,12 +87,26 @@ export function AiAgentModal({
   const [prizes, setPrizes] = useState<PrizeCard[]>([]);
   const [showMetamask, setShowMetamask] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const { width, height } = useWindowSize();
 
   // Watch transaction status
   const { isSuccess: txSuccess } = useTransaction({
     hash: txHash,
     chainId,
   });
+
+  // Show confetti when transaction succeeds
+  useEffect(() => {
+    if (txSuccess) {
+      setShowConfetti(true);
+      // Stop confetti after 5 seconds
+      const timer = setTimeout(() => {
+        setShowConfetti(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [txSuccess]);
 
   // Get etherscan base URL based on chain
   const getEtherscanBaseUrl = () => {
@@ -223,11 +239,17 @@ export function AiAgentModal({
                           [], // evidenceHashes - empty array for now
                           BigInt(prizeAmount || "0"),
                           endDate
-                            ? BigInt(new Date(endDate).getTime() / 1000)
+                            ? BigInt(
+                                Math.floor(new Date(endDate).getTime() / 1000)
+                              )
                             : BigInt(0),
                           prizePaidOut,
                           prizePaidOut && payoutDate
-                            ? BigInt(new Date(payoutDate).getTime() / 1000)
+                            ? BigInt(
+                                Math.floor(
+                                  new Date(payoutDate).getTime() / 1000
+                                )
+                              )
                             : BigInt(0),
                         ],
                       });
@@ -265,156 +287,167 @@ export function AiAgentModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl font-semibold">
-            Processing Report
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      {showConfetti && (
+        <ReactConfetti
+          width={width}
+          height={height}
+          recycle={false}
+          numberOfPieces={500}
+          tweenDuration={5000}
+        />
+      )}
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-semibold">
+              Processing Report
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-4 py-6">
-          {steps.map((step) => {
-            const isCurrentStep = step.id === currentStep;
-            const isCompleted =
-              step.id < currentStep || (step.id === 3 && txSuccess);
-            const isActive = step.id <= currentStep;
+          <div className="space-y-4 py-6">
+            {steps.map((step) => {
+              const isCurrentStep = step.id === currentStep;
+              const isCompleted =
+                step.id < currentStep || (step.id === 3 && txSuccess);
+              const isActive = step.id <= currentStep;
 
-            return (
-              <div key={step.id} className="flex items-center space-x-4">
-                {/* Step Number/Icon */}
-                <div className="relative">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-white transition-all duration-500 ease-in-out transform ${
-                      isCompleted
-                        ? step.color
-                        : isCurrentStep
-                        ? step.color
-                        : "bg-gray-200"
-                    } ${isCurrentStep ? "scale-110" : "scale-100"}`}
-                  >
-                    {(isCurrentStep && isLoading) ||
-                    (step.id === 3 && !txSuccess && showMetamask) ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : isCompleted ? (
-                      <CheckCircle className="w-5 h-5" />
-                    ) : (
-                      step.id
-                    )}
-                  </div>
-                </div>
-
-                {/* Step Content */}
-                <div
-                  className={`flex-1 p-4 rounded-lg transition-all duration-500 ease-in-out transform ${
-                    isActive ? step.bgColor : "bg-gray-50"
-                  } ${isCurrentStep ? "scale-[1.02]" : "scale-100"}`}
-                >
-                  <div className="flex justify-between items-center">
+              return (
+                <div key={step.id} className="flex items-center space-x-4">
+                  {/* Step Number/Icon */}
+                  <div className="relative">
                     <div
-                      className={`font-medium transition-colors duration-500 ${
-                        isActive ? step.textColor : "text-gray-500"
-                      }`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-white transition-all duration-500 ease-in-out transform ${
+                        isCompleted
+                          ? step.color
+                          : isCurrentStep
+                          ? step.color
+                          : "bg-gray-200"
+                      } ${isCurrentStep ? "scale-110" : "scale-100"}`}
                     >
-                      {step.id === 3 && txSuccess
-                        ? "Review Verified & Submitted!"
-                        : step.title}
-                    </div>
-                    {isCompleted && (
-                      <CheckCircle
-                        className={`w-6 h-6 ${step.textColor} transition-all duration-500 ease-in-out transform scale-100 ml-3`}
-                      />
-                    )}
-                  </div>
-                  {isCurrentStep && isLoading && (
-                    <div className="text-sm text-gray-500 mt-1 animate-pulse">
-                      Processing...
-                    </div>
-                  )}
-
-                  {/* Show screenshots in step 1 */}
-                  {step.id === 1 && screenshots.length > 0 && (
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      {screenshots.map((file, index) => (
-                        <div
-                          key={index}
-                          className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden"
-                        >
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={`Screenshot ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Show prizes when verified */}
-                  {step.id === 2 && prizes.length > 0 && (
-                    <div className="mt-4 space-y-2">
-                      {prizes.map((prize, index) => (
-                        <div
-                          key={index}
-                          className="bg-white p-3 rounded-lg shadow-sm border border-green-100 flex justify-between items-center animate-fadeIn"
-                        >
-                          <span className="font-medium text-gray-800">
-                            {prize.name}
-                          </span>
-                          <span className="text-green-600 font-semibold">
-                            {prize.amount}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Show transaction status in step 3 */}
-                  {step.id === 3 && showMetamask && (
-                    <div className="mt-2 space-y-2">
-                      {!txSuccess ? (
-                        <div className="text-sm text-gray-500">
-                          {isWriteSuccess
-                            ? "Waiting for transaction confirmation..."
-                            : "Please confirm the transaction in your wallet..."}
-                        </div>
+                      {(isCurrentStep && isLoading) ||
+                      (step.id === 3 && !txSuccess && showMetamask) ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : isCompleted ? (
+                        <CheckCircle className="w-5 h-5" />
                       ) : (
-                        <div className="text-sm space-y-2">
-                          <a
-                            href={`${getEtherscanBaseUrl()}/tx/${txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 underline"
-                          >
-                            View on Etherscan
-                          </a>
-                        </div>
+                        step.id
                       )}
                     </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                  </div>
 
-        {/* Show close button for verification failure or completion */}
-        {(verificationFailed || txSuccess) && (
-          <div className="text-center space-y-4">
-            {verificationFailed && (
-              <p className="text-red-600">
-                No prizes found in the provided screenshots.
-              </p>
-            )}
-            <Button
-              onClick={onClose}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-8"
-            >
-              Close
-            </Button>
+                  {/* Step Content */}
+                  <div
+                    className={`flex-1 p-4 rounded-lg transition-all duration-500 ease-in-out transform ${
+                      isActive ? step.bgColor : "bg-gray-50"
+                    } ${isCurrentStep ? "scale-[1.02]" : "scale-100"}`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div
+                        className={`font-medium transition-colors duration-500 ${
+                          isActive ? step.textColor : "text-gray-500"
+                        }`}
+                      >
+                        {step.id === 3 && txSuccess
+                          ? "Review Verified & Submitted!"
+                          : step.title}
+                      </div>
+                      {isCompleted && (
+                        <CheckCircle
+                          className={`w-6 h-6 ${step.textColor} transition-all duration-500 ease-in-out transform scale-100 ml-3`}
+                        />
+                      )}
+                    </div>
+                    {isCurrentStep && isLoading && (
+                      <div className="text-sm text-gray-500 mt-1 animate-pulse">
+                        Processing...
+                      </div>
+                    )}
+
+                    {/* Show screenshots in step 1 */}
+                    {step.id === 1 && screenshots.length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        {screenshots.map((file, index) => (
+                          <div
+                            key={index}
+                            className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden"
+                          >
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`Screenshot ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Show prizes when verified */}
+                    {step.id === 2 && prizes.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        {prizes.map((prize, index) => (
+                          <div
+                            key={index}
+                            className="bg-white p-3 rounded-lg shadow-sm border border-green-100 flex justify-between items-center animate-fadeIn"
+                          >
+                            <span className="font-medium text-gray-800">
+                              {prize.name}
+                            </span>
+                            <span className="text-green-600 font-semibold">
+                              {prize.amount}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Show transaction status in step 3 */}
+                    {step.id === 3 && showMetamask && (
+                      <div className="mt-2 space-y-2">
+                        {!txSuccess ? (
+                          <div className="text-sm text-gray-500">
+                            {isWriteSuccess
+                              ? "Waiting for transaction confirmation..."
+                              : "Please confirm the transaction in your wallet..."}
+                          </div>
+                        ) : (
+                          <div className="text-sm space-y-2">
+                            <a
+                              href={`${getEtherscanBaseUrl()}/tx/${txHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 underline"
+                            >
+                              View on Etherscan
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+
+          {/* Show close button for verification failure or completion */}
+          {(verificationFailed || txSuccess) && (
+            <div className="text-center space-y-4">
+              {verificationFailed && (
+                <p className="text-red-600">
+                  No prizes found in the provided screenshots.
+                </p>
+              )}
+              <Button
+                onClick={onClose}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-8"
+              >
+                Close
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
