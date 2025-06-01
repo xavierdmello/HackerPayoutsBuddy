@@ -104,27 +104,56 @@ export default function AppPage() {
   const quickestPayers = sortedByPayoutTime.slice(0, 3);
   const slowestPayers = [...sortedByPayoutTime].reverse().slice(0, 3);
 
-  // Get recent reviews (we'll need to implement this with real data later)
+  // Get recent reviews from the contract
+  const { data: reviewCount } = useReadContract({
+    abi,
+    address: config[chainId].address,
+    functionName: "reviewCount",
+  });
+
+  // Get the most recent review
+  const { data: mostRecentReview } = useReadContract({
+    abi,
+    address: config[chainId].address,
+    functionName: "reviews",
+    args: [reviewCount ? reviewCount - 1n : 0n],
+  });
+
+  // Get the second most recent review
+  const { data: secondMostRecentReview } = useReadContract({
+    abi,
+    address: config[chainId].address,
+    functionName: "reviews",
+    args: [reviewCount && reviewCount > 1n ? reviewCount - 2n : 0n],
+  });
+
+  // Get the third most recent review
+  const { data: thirdMostRecentReview } = useReadContract({
+    abi,
+    address: config[chainId].address,
+    functionName: "reviews",
+    args: [reviewCount && reviewCount > 2n ? reviewCount - 3n : 0n],
+  });
+
   const recentReviews = [
-    {
-      hackathon: "ETHGlobal NYC",
-      rating: 5,
-      comment: "Paid within 3 days, excellent communication",
-      time: "2h ago",
-    },
-    {
-      hackathon: "TreeHacks",
-      rating: 1,
-      comment: "Still waiting after 8 months, no response",
-      time: "4h ago",
-    },
-    {
-      hackathon: "HackMIT",
-      rating: 4,
-      comment: "Took 2 weeks but they kept us updated",
-      time: "6h ago",
-    },
-  ];
+    mostRecentReview,
+    secondMostRecentReview,
+    thirdMostRecentReview,
+  ]
+    .filter(
+      (review): review is NonNullable<typeof review> =>
+        review !== null &&
+        review !== undefined &&
+        (reviewCount ? BigInt(review[10]) >= reviewCount - 3n : false)
+    )
+    .map((review) => ({
+      // Access tuple elements by index based on contract ABI:
+      // [organization, eventName, title, comment, rating, prizeAmount, prizePaidOut, hackathonEndDate, payoutDate, reviewer, reviewId]
+      hackathon: review[1], // eventName
+      rating: Number(review[4]), // rating
+      comment: review[3], // comment
+      time: formatRelativeTime(review[7]), // hackathonEndDate
+    }));
 
   return (
     <div className="min-h-screen bg-gray-50">
