@@ -13,10 +13,10 @@ import {
 import { Header } from "@/components/header";
 import Link from "next/link";
 import { SubmitReportButton } from "@/components/submit-report-button";
-import { useChainId, useReadContract } from "wagmi";
+import { useBlockNumber, useChainId, useReadContract } from "wagmi";
 import config from "../config";
 import { abi } from "../abi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Helper function to format timestamp to relative time
 const formatRelativeTime = (timestamp: bigint) => {
@@ -51,11 +51,25 @@ const calculateRating = (totalRating: bigint, totalReviews: bigint) => {
 export default function AppPage() {
   const chainId = useChainId();
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: companiesData } = useReadContract({
+  const { data: companiesData, refetch: refetchCompanies } = useReadContract({
     abi,
     address: config[chainId].address,
     functionName: "getAllOrganizations",
+    query: {
+        staleTime: 0,
+    },
   });
+
+  const { data: blockNumber } = useBlockNumber({
+    chainId: chainId,
+    watch: true, // Automatically update on new blocks
+  });
+
+  useEffect(() => {
+    if (blockNumber) {
+      refetchCompanies();
+    }
+  }, [blockNumber]);
 
   const companies =
     companiesData?.map((company: any) => ({

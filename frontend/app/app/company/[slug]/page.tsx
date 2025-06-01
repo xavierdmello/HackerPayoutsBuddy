@@ -11,10 +11,11 @@ import { Header } from "@/components/header";
 import { SubmitReportButton } from "@/components/submit-report-button";
 import { Reviews } from "@/components/reviews";
 import Link from "next/link";
-import { useChainId, useReadContract, useAccount } from "wagmi";
+import { useChainId, useReadContract, useAccount, useBlockNumber } from "wagmi";
 import config from "@/app/config";
 import { abi } from "@/app/abi";
-import { use } from "react";
+import { use, useEffect } from "react";
+import { mainnet } from "wagmi/chains";
 
 interface Review {
   id: string;
@@ -98,20 +99,39 @@ export default function CompanyPage({
   const chainId = useChainId();
   const { address } = useAccount();
 
-  const { data: companyData } = useReadContract({
+  const { data: companyData, refetch: refetchCompany } = useReadContract({
     abi,
     address: config[chainId].address,
     functionName: "getOrganization",
     args: [slug],
+    query: {
+      refetchInterval: 5000, // Refetch every 5 seconds
+      refetchIntervalInBackground: true, // Continue refetching in background
+      staleTime: 5000, // Data is considered stale after 5 seconds
+    },
   });
   const company_name = companyData?.[0];
-  const { data: reviewsData } = useReadContract({
+  const { data: reviewsData, refetch: refetchReviews } = useReadContract({
     abi,
     address: config[chainId].address,
     functionName: "getAllReviewsFromSponsor",
     args: [company_name || ""],
+    query: {
+      staleTime: 0,
+    },
   });
-
+  const { data: blockNumber } = useBlockNumber({
+    chainId: chainId,
+    watch: true, // Automatically update on new blocks
+  });
+   console.log("blockNumber", blockNumber);
+  useEffect(() => {
+    if (blockNumber) {
+   
+      refetchReviews(); // Trigger refetch on new block
+      refetchCompany();
+    }
+  }, [blockNumber]);
   const { data: firstReviewWholeApp } = useReadContract({
     abi,
     address: config[chainId].address,
