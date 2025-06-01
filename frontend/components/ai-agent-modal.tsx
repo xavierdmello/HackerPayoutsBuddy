@@ -79,7 +79,9 @@ export function AiAgentModal({
   const [prizes, setPrizes] = useState<PrizeCard[]>([]);
   const [showMetamask, setShowMetamask] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [shouldSubmitTransaction, setShouldSubmitTransaction] = useState(false);
 
+  // Effect for Gemini verification
   useEffect(() => {
     if (!open) {
       // Reset state when modal closes
@@ -89,6 +91,7 @@ export function AiAgentModal({
       setPrizes([]);
       setShowMetamask(false);
       setHasSubmitted(false);
+      setShouldSubmitTransaction(false);
       return;
     }
 
@@ -178,36 +181,7 @@ export function AiAgentModal({
               setIsLoading(true);
               setTimeout(() => {
                 setCurrentStep(3);
-                setIsLoading(true);
-                // Random delay between 1-3 seconds before submitting transaction
-                setTimeout(() => {
-                  if (!hasSubmitted) {
-                    setHasSubmitted(true);
-                    writeContract({
-                      abi,
-                      address: config[chainId].address as `0x${string}`,
-                      functionName: "submitReview",
-                      args: [
-                        organization,
-                        hackathon,
-                        title,
-                        description,
-                        rating,
-                        [], // evidenceHashes - empty array for now
-                        BigInt(prizeAmount || "0"),
-                        endDate
-                          ? BigInt(new Date(endDate).getTime() / 1000)
-                          : BigInt(0),
-                        prizePaidOut,
-                        prizePaidOut
-                          ? BigInt(new Date().getTime() / 1000)
-                          : BigInt(0),
-                      ],
-                    });
-                  }
-                  setIsLoading(false);
-                  setShowMetamask(true);
-                }, Math.random() * 2000 + 1000); // Random delay between 1-3 seconds
+                setShouldSubmitTransaction(true);
               }, Math.random() * 2000 + 2000);
             }, 2000);
           } else {
@@ -227,9 +201,40 @@ export function AiAgentModal({
     };
 
     verifyWithGemini();
+  }, [open, screenshots]);
+
+  // Effect for transaction submission
+  useEffect(() => {
+    if (shouldSubmitTransaction && !hasSubmitted) {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        setHasSubmitted(true);
+        writeContract({
+          abi,
+          address: config[chainId].address as `0x${string}`,
+          functionName: "submitReview",
+          args: [
+            organization,
+            hackathon,
+            title,
+            description,
+            rating,
+            [], // evidenceHashes - empty array for now
+            BigInt(prizeAmount || "0"),
+            endDate ? BigInt(new Date(endDate).getTime() / 1000) : BigInt(0),
+            prizePaidOut,
+            prizePaidOut ? BigInt(new Date().getTime() / 1000) : BigInt(0),
+          ],
+        });
+        setIsLoading(false);
+        setShowMetamask(true);
+      }, Math.random() * 2000 + 1000); // Random delay between 1-3 seconds
+
+      return () => clearTimeout(timer);
+    }
   }, [
-    open,
-    screenshots,
+    shouldSubmitTransaction,
+    hasSubmitted,
     organization,
     hackathon,
     title,
@@ -240,7 +245,6 @@ export function AiAgentModal({
     prizePaidOut,
     chainId,
     writeContract,
-    hasSubmitted,
   ]);
 
   const handleClose = () => {
