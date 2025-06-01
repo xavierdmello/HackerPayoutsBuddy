@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CheckCircle, Loader2 } from "lucide-react";
-import { useChainId, useWriteContract } from "wagmi";
+import { useChainId, useWriteContract, useTransaction } from "wagmi";
 import { abi } from "@/app/abi";
 import config from "../app/config";
 
@@ -71,7 +71,11 @@ export function AiAgentModal({
   endDate,
   prizePaidOut,
 }: AiAgentModalProps) {
-  const { writeContract } = useWriteContract();
+  const {
+    writeContract,
+    data: txHash,
+    isSuccess: isWriteSuccess,
+  } = useWriteContract();
   const chainId = useChainId();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,9 +83,27 @@ export function AiAgentModal({
   const [prizes, setPrizes] = useState<PrizeCard[]>([]);
   const [showMetamask, setShowMetamask] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [shouldSubmitTransaction, setShouldSubmitTransaction] = useState(false);
 
-  // Effect for Gemini verification
+  // Watch transaction status
+  const { isSuccess: txSuccess } = useTransaction({
+    hash: txHash,
+    chainId,
+  });
+
+  // Get etherscan base URL based on chain
+  const getEtherscanBaseUrl = () => {
+    switch (chainId) {
+      case 1:
+        return "https://etherscan.io";
+      case 5:
+        return "https://goerli.etherscan.io";
+      case 11155111:
+        return "https://sepolia.etherscan.io";
+      default:
+        return "https://etherscan.io";
+    }
+  };
+
   useEffect(() => {
     if (!open) {
       // Reset state when modal closes
@@ -91,7 +113,6 @@ export function AiAgentModal({
       setPrizes([]);
       setShowMetamask(false);
       setHasSubmitted(false);
-      setShouldSubmitTransaction(false);
       return;
     }
 
@@ -181,7 +202,41 @@ export function AiAgentModal({
               setIsLoading(true);
               setTimeout(() => {
                 setCurrentStep(3);
-                setShouldSubmitTransaction(true);
+                setIsLoading(true);
+                // Random delay between 1-3 seconds before submitting transaction
+                setTimeout(async () => {
+                  if (!hasSubmitted) {
+                    setHasSubmitted(true);
+                    try {
+                      await writeContract({
+                        abi,
+                        address: config[chainId].address as `0x${string}`,
+                        functionName: "submitReview",
+                        args: [
+                          organization,
+                          hackathon,
+                          title,
+                          description,
+                          rating,
+                          [], // evidenceHashes - empty array for now
+                          BigInt(prizeAmount || "0"),
+                          endDate
+                            ? BigInt(new Date(endDate).getTime() / 1000)
+                            : BigInt(0),
+                          prizePaidOut,
+                          prizePaidOut
+                            ? BigInt(new Date().getTime() / 1000)
+                            : BigInt(0),
+                        ],
+                      });
+                    } catch (error) {
+                      console.error("Error submitting transaction:", error);
+                      // You might want to show an error message to the user here
+                    }
+                  }
+                  setIsLoading(false);
+                  setShowMetamask(true);
+                }, Math.random() * 2000 + 1000);
               }, Math.random() * 2000 + 2000);
             }, 2000);
           } else {
@@ -202,50 +257,6 @@ export function AiAgentModal({
 
     verifyWithGemini();
   }, [open, screenshots]);
-
-  // Effect for transaction submission
-  useEffect(() => {
-    if (shouldSubmitTransaction && !hasSubmitted) {
-      setIsLoading(true);
-      const timer = setTimeout(() => {
-        setHasSubmitted(true);
-        writeContract({
-          abi,
-          address: config[chainId].address as `0x${string}`,
-          functionName: "submitReview",
-          args: [
-            organization,
-            hackathon,
-            title,
-            description,
-            rating,
-            [], // evidenceHashes - empty array for now
-            BigInt(prizeAmount || "0"),
-            endDate ? BigInt(new Date(endDate).getTime() / 1000) : BigInt(0),
-            prizePaidOut,
-            prizePaidOut ? BigInt(new Date().getTime() / 1000) : BigInt(0),
-          ],
-        });
-        setIsLoading(false);
-        setShowMetamask(true);
-      }, Math.random() * 2000 + 1000); // Random delay between 1-3 seconds
-
-      return () => clearTimeout(timer);
-    }
-  }, [
-    shouldSubmitTransaction,
-    hasSubmitted,
-    organization,
-    hackathon,
-    title,
-    description,
-    rating,
-    prizeAmount,
-    endDate,
-    prizePaidOut,
-    chainId,
-    writeContract,
-  ]);
 
   const handleClose = () => {
     onClose();
@@ -332,10 +343,30 @@ export function AiAgentModal({
                     </div>
                   )}
 
-                  {/* Show metamask status in step 3 */}
+                  {/* Show transaction status in step 3 */}
                   {step.id === 3 && showMetamask && (
-                    <div className="text-sm text-gray-500 mt-1">
-                      Please confirm the transaction in your wallet...
+                    <div className="mt-2 space-y-2">
+                      {!txSuccess ? (
+                        <div className="text-sm text-gray-500">
+                          {isWriteSuccess
+                            ? "Waiting for transaction confirmation..."
+                            : "Please confirm the transaction in your wallet..."}
+                        </div>
+                      ) : (
+                        <div className="text-sm space-y-2">
+                          <div className="text-green-600">
+                            Transaction confirmed!
+                          </div>
+                          <a
+                            href={`${getEtherscanBaseUrl()}/tx/${txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            View on Etherscan
+                          </a>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
