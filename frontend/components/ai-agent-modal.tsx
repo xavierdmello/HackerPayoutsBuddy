@@ -121,9 +121,9 @@ export function AiAgentModal({
     if (!txHash) return "";
     switch (chainId) {
       case flowMainnet.id:
-        return `https://www.flowscan.io/tx/${txHash}`;
+        return `https://www.flowscan.io/evm/tx/${txHash}`;
       case flowTestnet.id:
-        return `https://testnet.flowscan.io/tx/${txHash}`;
+        return `https://testnet.flowscan.io/evm/tx/${txHash}`;
       case flareTestnet.id:
         return `https://testnet.flarescan.com/tx/${txHash}?chainid=114`;
       case rootstockTestnet.id:
