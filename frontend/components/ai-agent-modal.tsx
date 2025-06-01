@@ -25,6 +25,7 @@ interface AiAgentModalProps {
   prizeAmount: string;
   endDate: string;
   prizePaidOut: boolean;
+  payoutDate: string;
 }
 
 const GEMINI_API_KEY = "AIzaSyDNytYifVmjUI52L2iqZS6x0vIDcejNJKs";
@@ -70,6 +71,7 @@ export function AiAgentModal({
   prizeAmount,
   endDate,
   prizePaidOut,
+  payoutDate,
 }: AiAgentModalProps) {
   const {
     writeContract,
@@ -224,8 +226,8 @@ export function AiAgentModal({
                             ? BigInt(new Date(endDate).getTime() / 1000)
                             : BigInt(0),
                           prizePaidOut,
-                          prizePaidOut
-                            ? BigInt(new Date().getTime() / 1000)
+                          prizePaidOut && payoutDate
+                            ? BigInt(new Date(payoutDate).getTime() / 1000)
                             : BigInt(0),
                         ],
                       });

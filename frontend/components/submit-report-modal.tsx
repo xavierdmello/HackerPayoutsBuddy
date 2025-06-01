@@ -77,6 +77,12 @@ export function SubmitReportModal({
   const [description, setDescription] = useState("");
   const [prizeAmount, setPrizeAmount] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [payoutDate, setPayoutDate] = useState("");
+  const [errors, setErrors] = useState<{
+    endDate?: string;
+    payoutDate?: string;
+    screenshots?: string;
+  }>({});
 
   const handleOrgChange = (value: string) => {
     setOrganization(value);
@@ -115,8 +121,48 @@ export function SubmitReportModal({
     setScreenshots(screenshots.filter((_, i) => i !== index));
   };
 
+  const validateDates = () => {
+    const newErrors: typeof errors = {};
+    const today = new Date();
+    today.setHours(23, 59, 59, 999); // End of today
+
+    // Validate end date
+    if (endDate) {
+      const endDateObj = new Date(endDate);
+      if (endDateObj > today) {
+        newErrors.endDate = "Hackathon end date cannot be in the future";
+      }
+    }
+
+    // Validate payout date if prize is paid out
+    if (prizePaidOut && payoutDate) {
+      const payoutDateObj = new Date(payoutDate);
+      const endDateObj = new Date(endDate);
+
+      if (payoutDateObj > today) {
+        newErrors.payoutDate = "Payout date cannot be in the future";
+      }
+      if (endDate && payoutDateObj < endDateObj) {
+        newErrors.payoutDate =
+          "Payout date cannot be before the hackathon ended";
+      }
+    }
+
+    // Validate screenshots
+    if (screenshots.length === 0) {
+      newErrors.screenshots = "Please upload at least one screenshot";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateDates()) {
+      return;
+    }
 
     // Close the form modal
     setOpen(false);
@@ -314,30 +360,56 @@ export function SubmitReportModal({
                 id="endDate"
                 type="date"
                 required
+                max={new Date().toISOString().split("T")[0]}
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  validateDates();
+                }}
               />
+              {errors.endDate && (
+                <p className="text-sm text-red-600">{errors.endDate}</p>
+              )}
             </div>
 
             {/* Prize Paid Out */}
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="prizePaidOut"
-                checked={prizePaidOut}
-                onCheckedChange={(checked) =>
-                  setPrizePaidOut(checked as boolean)
-                }
-              />
-              <Label htmlFor="prizePaidOut">Prize has been paid out</Label>
-            </div>
-
-            {/* Time to Payout (if paid) */}
-            {prizePaidOut && (
-              <div className="space-y-2">
-                <Label htmlFor="payoutTime">Time taken to receive payout</Label>
-                <Input id="payoutTime" placeholder="e.g., 7 days, 3 months" />
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="prizePaidOut"
+                  checked={prizePaidOut}
+                  onCheckedChange={(checked) => {
+                    setPrizePaidOut(checked as boolean);
+                    if (!checked) {
+                      setPayoutDate("");
+                    }
+                  }}
+                />
+                <Label htmlFor="prizePaidOut">Prize has been paid out</Label>
               </div>
-            )}
+
+              {/* Payout Date (if paid) */}
+              {prizePaidOut && (
+                <div className="space-y-2">
+                  <Label htmlFor="payoutDate">Date Prize Was Received *</Label>
+                  <Input
+                    id="payoutDate"
+                    type="date"
+                    required
+                    min={endDate}
+                    max={new Date().toISOString().split("T")[0]}
+                    value={payoutDate}
+                    onChange={(e) => {
+                      setPayoutDate(e.target.value);
+                      validateDates();
+                    }}
+                  />
+                  {errors.payoutDate && (
+                    <p className="text-sm text-red-600">{errors.payoutDate}</p>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Description */}
             <div className="space-y-2">
@@ -354,8 +426,14 @@ export function SubmitReportModal({
 
             {/* Screenshot Upload */}
             <div className="space-y-2">
-              <Label>Evidence Screenshots</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              <Label>Evidence Screenshots *</Label>
+              <div
+                className={`border-2 border-dashed ${
+                  errors.screenshots ? "border-red-300" : "border-gray-300"
+                } rounded-lg p-4 ${
+                  screenshots.length > 0 ? "border-opacity-50" : ""
+                }`}
+              >
                 <input
                   type="file"
                   multiple
@@ -363,10 +441,13 @@ export function SubmitReportModal({
                   onChange={handleFileUpload}
                   className="hidden"
                   id="screenshot-upload"
+                  required={screenshots.length === 0}
                 />
                 <label
                   htmlFor="screenshot-upload"
-                  className="flex flex-col items-center justify-center cursor-pointer"
+                  className={`flex flex-col items-center justify-center cursor-pointer ${
+                    screenshots.length > 0 ? "py-2" : "py-6"
+                  }`}
                 >
                   <Upload className="w-8 h-8 text-gray-400 mb-2" />
                   <span className="text-sm text-gray-600">
@@ -376,27 +457,35 @@ export function SubmitReportModal({
                     PNG, JPG up to 10MB each
                   </span>
                 </label>
-              </div>
 
-              {screenshots.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Uploaded Screenshots:</Label>
-                  {screenshots.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between bg-gray-50 p-2 rounded"
-                    >
-                      <span className="text-sm text-gray-600">{file.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeScreenshot(index)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                {screenshots.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    {screenshots.map((file, index) => (
+                      <div key={index} className="relative group">
+                        <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Screenshot ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeScreenshot(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs py-1 px-2 truncate">
+                          {file.name}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {errors.screenshots && (
+                <p className="text-sm text-red-600">{errors.screenshots}</p>
               )}
             </div>
 
@@ -430,6 +519,7 @@ export function SubmitReportModal({
         prizeAmount={prizeAmount}
         endDate={endDate}
         prizePaidOut={prizePaidOut}
+        payoutDate={payoutDate}
       />
     </>
   );
