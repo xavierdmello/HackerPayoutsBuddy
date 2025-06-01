@@ -275,7 +275,8 @@ export default function AppPage() {
                     ))
                   ) : (
                     <div className="p-8 text-center text-gray-500">
-                      No companies found matching "{searchQuery}"
+                      No companies found. Try a different search or switching
+                      the network?
                     </div>
                   )}
                 </div>
