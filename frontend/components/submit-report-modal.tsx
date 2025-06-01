@@ -123,13 +123,29 @@ export function SubmitReportModal({
 
     // Open the AI agent modal
     setAiAgentOpen(true);
-
-    // TODO: Add actual form submission logic here
-    console.log("Form submitted");
   };
 
   const handleAiAgentClose = () => {
     setAiAgentOpen(false);
+
+    // Submit the transaction when AI verification is complete
+    writeContract({
+      abi,
+      address: config[chainid].address as `0x${string}`,
+      functionName: "submitReview",
+      args: [
+        organization,
+        hackathon,
+        title,
+        description,
+        rating,
+        [], // evidenceHashes - empty array for now
+        BigInt(prizeAmount || "0"),
+        endDate ? BigInt(new Date(endDate).getTime() / 1000) : BigInt(0),
+        prizePaidOut,
+        prizePaidOut ? BigInt(new Date().getTime() / 1000) : BigInt(0),
+      ],
+    });
 
     // Reset form state
     setRating(0);
@@ -393,48 +409,7 @@ export function SubmitReportModal({
               >
                 Cancel
               </Button>
-              {/* string memory _sponsor, uint8 _rating, string memory _comment,
-              string[] memory _evidenceHashes, uint256 _prizeAmount, uint256
-              _hackathonEndDate, bool _isAlreadyPaidOut, uint256 _payoutDate */}
-
-              {/* string memory _organization,
-        string memory _eventName,
-        string memory _title,
-        string memory _comment,
-        uint8 _rating,
-        string[] memory _evidenceHashes,
-        uint256 _prizeAmount,
-        uint256 _hackathonEndDate,
-        bool _isAlreadyPaidOut,
-        uint256 _payoutDate
-    ) public { */}
-              <Button
-                onClick={() =>
-                  writeContract({
-                    abi,
-                    address: config[chainid].address as `0x${string}`,
-                    functionName: "submitReview",
-                    args: [
-                      organization,
-                      hackathon,
-                      title,
-                      description,
-                      rating,
-                      [], // evidenceHashes - empty array for now
-                      BigInt(prizeAmount || "0"),
-                      endDate
-                        ? BigInt(new Date(endDate).getTime() / 1000)
-                        : BigInt(0),
-                      prizePaidOut,
-                      prizePaidOut
-                        ? BigInt(new Date().getTime() / 1000)
-                        : BigInt(0),
-                    ],
-                  })
-                }
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700"
-              >
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
                 Submit Report
               </Button>
             </div>

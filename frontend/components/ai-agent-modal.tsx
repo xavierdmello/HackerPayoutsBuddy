@@ -273,9 +273,9 @@ export function AiAgentModal({
                     <div className="mt-4">
                       <Button
                         onClick={handleClose}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center space-x-2"
                       >
-                        Connect Metamask
+                        <span>Submit with Metamask</span>
                       </Button>
                     </div>
                   )}
