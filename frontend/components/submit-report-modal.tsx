@@ -422,6 +422,14 @@ export function SubmitReportModal({
         open={aiAgentOpen}
         onClose={handleAiAgentClose}
         screenshots={screenshots}
+        organization={organization}
+        hackathon={hackathon}
+        title={title}
+        description={description}
+        rating={rating}
+        prizeAmount={prizeAmount}
+        endDate={endDate}
+        prizePaidOut={prizePaidOut}
       />
     </>
   );

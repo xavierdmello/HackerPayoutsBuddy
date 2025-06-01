@@ -9,11 +9,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CheckCircle, Loader2 } from "lucide-react";
+import { useChainId, useWriteContract } from "wagmi";
+import { abi } from "@/app/abi";
+import config from "../app/config";
 
 interface AiAgentModalProps {
   open: boolean;
   onClose: () => void;
   screenshots: File[];
+  organization: string;
+  hackathon: string;
+  title: string;
+  description: string;
+  rating: number;
+  prizeAmount: string;
+  endDate: string;
+  prizePaidOut: boolean;
 }
 
 const GEMINI_API_KEY = "AIzaSyDNytYifVmjUI52L2iqZS6x0vIDcejNJKs";
@@ -51,13 +62,22 @@ export function AiAgentModal({
   open,
   onClose,
   screenshots,
+  organization,
+  hackathon,
+  title,
+  description,
+  rating,
+  prizeAmount,
+  endDate,
+  prizePaidOut,
 }: AiAgentModalProps) {
+  const { writeContract } = useWriteContract();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [verificationFailed, setVerificationFailed] = useState(false);
   const [prizes, setPrizes] = useState<PrizeCard[]>([]);
   const [showMetamask, setShowMetamask] = useState(false);
-
+  const chainId = useChainId();
   useEffect(() => {
     if (!open) {
       // Reset state when modal closes
@@ -269,16 +289,29 @@ export function AiAgentModal({
                   )}
 
                   {/* Show metamask button in step 3 */}
-                  {step.id === 3 && showMetamask && (
-                    <div className="mt-4">
-                      <Button
-                        onClick={handleClose}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center space-x-2"
-                      >
-                        <span>Submit with Metamask</span>
-                      </Button>
-                    </div>
-                  )}
+                  {step.id === 3 &&
+                    showMetamask &&
+                    writeContract({
+                      abi,
+                      address: config[chainId].address as `0x${string}`,
+                      functionName: "submitReview",
+                      args: [
+                        organization,
+                        hackathon,
+                        title,
+                        description,
+                        rating,
+                        [], // evidenceHashes - empty array for now
+                        BigInt(prizeAmount || "0"),
+                        endDate
+                          ? BigInt(new Date(endDate).getTime() / 1000)
+                          : BigInt(0),
+                        prizePaidOut,
+                        prizePaidOut
+                          ? BigInt(new Date().getTime() / 1000)
+                          : BigInt(0),
+                      ],
+                    })}
                 </div>
               </div>
             );
