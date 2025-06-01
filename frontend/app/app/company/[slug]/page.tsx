@@ -146,7 +146,85 @@ export default function CompanyPage({
   console.log("companyData");
   console.log(companyData);
   if (!companyData || !reviewsData) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-6 py-8">
+          {/* Back Button */}
+          <div className="h-6 bg-gray-200 rounded w-32 mb-6 animate-pulse" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Company Header */}
+              <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <div className="h-8 bg-gray-200 rounded w-48 mb-2 animate-pulse" />
+                    <div className="h-6 bg-gray-200 rounded w-32 animate-pulse" />
+                  </div>
+                  <div className="h-10 bg-gray-200 rounded w-32 animate-pulse" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="text-center p-4 bg-gray-50 rounded-lg"
+                    >
+                      <div className="h-6 bg-gray-200 rounded w-6 mx-auto mb-2 animate-pulse" />
+                      <div className="h-6 bg-gray-200 rounded w-16 mx-auto mb-1 animate-pulse" />
+                      <div className="h-4 bg-gray-200 rounded w-24 mx-auto animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reviews */}
+              <div className="bg-white border border-gray-200 shadow-sm rounded-xl">
+                <div className="p-6 border-b border-gray-200">
+                  <div className="h-6 bg-gray-200 rounded w-32 animate-pulse" />
+                </div>
+                <div className="p-4 space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-gray-50 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="h-6 bg-gray-200 rounded w-32 animate-pulse" />
+                        <div className="h-6 bg-gray-200 rounded w-24 animate-pulse" />
+                      </div>
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-6">
+                <div className="h-6 bg-gray-200 rounded w-32 mb-4 animate-pulse" />
+                <div className="space-y-3">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse" />
+                        <div className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gray-200 rounded-full animate-pulse"
+                          style={{ width: "50%" }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (company_name === "") {
